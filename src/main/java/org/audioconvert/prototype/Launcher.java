@@ -10,7 +10,7 @@ import java.io.File;
 public class Launcher {
     public static void main(String[] args) {
         Audio audio = new Audio("C:/audio/source.wav", "mp3", 2, 44100, 9,"C://audio/converted.mp3");
-        Convert.audio(audio);
+        Convert.Convert(audio);
 
     }
 }

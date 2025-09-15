@@ -10,7 +10,7 @@ import ws.schild.jave.encode.EncodingAttributes;
 import java.io.File;
 
 public class Convert {
-    public static void audio(Audio audio) {
+    public static void Convert(Audio audio) {
         AudioAttributes audioAtt = new AudioAttributes();
         audioAtt.setQuality(audio.getQuality());
         audioAtt.setChannels(audio.getChannels());
