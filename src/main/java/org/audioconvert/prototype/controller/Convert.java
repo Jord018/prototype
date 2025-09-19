@@ -6,6 +6,7 @@ import ws.schild.jave.EncoderException;
 import ws.schild.jave.MultimediaObject;
 import ws.schild.jave.encode.AudioAttributes;
 import ws.schild.jave.encode.EncodingAttributes;
+import ws.schild.jave.info.AudioInfo;
 
 import java.io.File;
 
@@ -16,7 +17,6 @@ public class Convert {
         audioAtt.setChannels(audio.getChannels());
         audioAtt.setSamplingRate(audio.getSamplingRate());
         EncodingAttributes attrs = new EncodingAttributes();
-        attrs.setOutputFormat("mp3");
         attrs.setAudioAttributes(audioAtt);
         Encoder encoder = new Encoder();
         try {

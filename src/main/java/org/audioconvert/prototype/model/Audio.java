@@ -37,8 +37,8 @@ public class Audio {
 
     private File path;
 
-    public Audio(String path, String format, int channels, int samplingRate, int Quality, String target) {
-        this.path = new File(path);
+    public Audio(File path, String format, int channels, int samplingRate, int Quality, String target) {
+        this.path = path;
         this.format = format;
         this.channels = channels;
         this.samplingRate = samplingRate;

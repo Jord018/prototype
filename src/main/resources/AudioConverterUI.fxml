@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="400" prefWidth="600" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.audioconvert.prototype.view.MainScreen">
+
+    <!-- Top Bar -->
+    <top>
+        <HBox spacing="10">
+            <children>
+                <Label text="Logo" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="closeBtn" text="X" />
+            </children>
+        </HBox>
+    </top>
+
+    <!-- Bottom Bar -->
+    <bottom>
+        <HBox alignment="CENTER" spacing="10">
+            <children>
+            <ButtonBar prefHeight="40.0" prefWidth="200.0">
+               <buttons>
+                  <Label prefHeight="17.0" prefWidth="157.0" text="Label" />
+                  <Button fx:id="Target" mnemonicParsing="false" text="Target" />
+               </buttons>
+            </ButtonBar>
+                <Button fx:id="mp3Btn" text="MP3" />
+                <Button fx:id="m4aBtn" text="M4A" />
+                <Button fx:id="wavBtn" text="WAV" />
+                <Button fx:id="flacBtn" text="FLAC" />
+                <Button fx:id="configBtn" text="⚙" />
+                <Button fx:id="convertBtn" text="Convert" />
+            </children>
+        </HBox>
+    </bottom>
+   <left>
+        <Label fx:id="dropBarLabel" prefWidth="108.0" style="-fx-border-color: gray; -fx-border-width: 2; -fx-alignment: center; -fx-pref-height: 200;" text="Drop bar" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets left="50.0" />
+         </BorderPane.margin></Label>
+   </left>
+   <right>
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="CENTER" prefHeight="17.0" prefWidth="204.0" text="Quality" />
+            <Slider fx:id="Quality" />
+            <Label fx:id="NumQuality" alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="17.0" prefWidth="204.0" />
+         </children>
+         <BorderPane.margin>
+            <Insets right="30.0" />
+         </BorderPane.margin></VBox>
+   </right>
+
+</BorderPane>

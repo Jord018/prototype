@@ -1,5 +1,5 @@
 package org.audioconvert.prototype.controller;
-
+/*
 public class SetBit {
         boolean IsConstantBitrate;
         boolean IsVariableBitrate;
@@ -13,3 +13,4 @@ public class SetBit {
 
         }
 }
+*/
