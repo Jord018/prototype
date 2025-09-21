@@ -20,7 +20,7 @@ public class Convert {
             audioAtt.setQuality(audio.getQuality());
             audioAtt.setChannels(audio.getChannels());
             audioAtt.setSamplingRate(audio.getSamplingRate());
-
+            audioAtt.setBitRate(128000);
             EncodingAttributes attrs = new EncodingAttributes();
             attrs.setAudioAttributes(audioAtt);
 
@@ -37,11 +37,12 @@ public class Convert {
             // 6. Create encoder and perform conversion
             Encoder encoder = new Encoder();
             if(audio.isVBR()){
-                encoder.addOptionAtIndex(
+                Encoder.addOptionAtIndex(
                         new SimpleArgument(ArgType.OUTFILE, a -> Stream.of("-qscale:a", audio.getVBR())),
                         0
                 );}
             System.out.println("\nStarting conversion...");
+            System.out.println("audio bitrate"+ audio.getBitrate());
             encoder.encode(new MultimediaObject(audio.getPath()), audio.getTarget(), attrs);
         } catch (
                 EncoderException e) {
