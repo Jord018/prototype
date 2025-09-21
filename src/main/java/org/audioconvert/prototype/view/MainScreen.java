@@ -4,13 +4,19 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.stage.DirectoryChooser;
-import org.audioconvert.prototype.controller.Input_Handle;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.audioconvert.prototype.controller.Convert;
 import org.audioconvert.prototype.model.Audio;
 
 import java.io.File;
@@ -26,65 +32,61 @@ public class MainScreen {
     @FXML private Button configBtn;
     @FXML private Button convertBtn;
     @FXML private Label dropBarLabel;
-    @FXML private Button Target;
     @FXML private Slider Quality;
     @FXML private Label NumQuality;
     private List<File> droppedFiles;
+    private Stage currentPopup;
     @FXML
     private void initialize() {
-        Input_Handle inputHandler = new Input_Handle();
+        Audio audio = new Audio();
+        
+        // Config button action
+        configBtn.setOnAction(event -> showConfigPopup());
 
         // Initialize buttons
         closeBtn.setOnAction(e -> System.exit(0));
         mp3Btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                inputHandler.setFormat("mp3");
+                audio.setFormat("mp3");
+                System.out.println("Format: " + audio.getFormat());
             }
         });
         m4aBtn.setOnAction((new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                inputHandler.setFormat("m4a");
+                audio.setFormat("m4a");
             }
         }));
         wavBtn.setOnAction((new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                inputHandler.setFormat("wav");
+                audio.setFormat("wav");
             }
         }));
         flacBtn.setOnAction((new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                inputHandler.setFormat("flac");
-            }
-        }));
-        configBtn.setOnAction((new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                inputHandler.setFormat("mp3");
+                audio.setFormat("flac");
             }
         }));
         convertBtn.setOnAction((new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-
-                inputHandler.combine();
+                DirectoryChooser outputDir = new DirectoryChooser();
+                outputDir.setTitle("Select Output Directory");
+                File selectedDir = outputDir.showDialog(null);
+                System.out.println(selectedDir.getPath()+"/output."+audio.getFormat());
+                audio.setTarget(new File(selectedDir.getAbsolutePath() + "/output." + audio.getFormat()));
+                Convert.Convert(audio);
             }
         }));
-        Target.setOnAction(e -> {
-            DirectoryChooser outputDir = new DirectoryChooser();
-            outputDir.setTitle("Select Output Directory");
-            File selectedDir = outputDir.showDialog(null);
-            System.out.println(selectedDir.getPath()+"/output."+inputHandler.getFormat());
-            inputHandler.setTarget(selectedDir.getAbsolutePath()+"/output."+inputHandler.getFormat());
-});
+
         // Set up drag and drop handlers
-        setupDragAndDrop(inputHandler);
-        setupSlider(inputHandler);
+        setupDragAndDrop(audio);
+        setupSlider(audio);
     }
-    private void setupDragAndDrop(Input_Handle inputHandler) {
+    private void setupDragAndDrop(Audio audio) {
         // Set up drag over event
         dropBarLabel.setOnDragOver(event -> {
             if (event.getGestureSource() != dropBarLabel &&
@@ -115,24 +117,35 @@ public class MainScreen {
             if (db.hasFiles()) {
                 droppedFiles = db.getFiles();
                 if (!droppedFiles.isEmpty()) {
-                    // Update the label to show the first file name
-                    String fileName = droppedFiles.get(0).getName();
-                    if (droppedFiles.size() > 1) {
-                        fileName += " and " + (droppedFiles.size() - 1) + " more files";
+                    // สร้างข้อความชื่อไฟล์ทั้งหมด
+                    StringBuilder fileNames = new StringBuilder();
+                    for (int i = 0; i < droppedFiles.size(); i++) {
+                        File file = droppedFiles.get(i);
+                        fileNames.append(file.getName());
+                        if (i < droppedFiles.size() - 1) {
+                            fileNames.append(", ");
+                        }
+
+                        System.out.println("Dropped file: " + file.getAbsolutePath());
                     }
-                    dropBarLabel.setText(fileName);
-                    File file = droppedFiles.get(0);
-                    inputHandler.setFile(file);
+
+
+                    dropBarLabel.setText(fileNames.toString());
+
+
+                    audio.setPath(droppedFiles.get(0));
+
                     success = true;
                 }
-                System.out.println("Dropped files: " + droppedFiles.get(0).getName());
             }
 
             event.setDropCompleted(success);
             event.consume();
         });
+
     }
-    private void setupSlider(Input_Handle inputHandler) {
+
+    private void setupSlider(Audio audio) {
         Quality.setMin(0);
         Quality.setMax(320);
         Quality.setValue(64); // ค่าเริ่มต้น
@@ -145,9 +158,50 @@ public class MainScreen {
 
         // ฟังการเปลี่ยนแปลงค่า
         Quality.valueProperty().addListener((observable, oldValue, newValue) -> {
-            inputHandler.setQuality(newValue.intValue());
+            audio.setQuality(newValue.intValue());
         });
 
     }
+    @FXML
+    private void showConfigPopup() {
+        try {
+            // Load the FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("ConfigUI.fxml"));
+            Parent root = loader.load();
+            ConfigScreen controller = loader.getController();
+            // Create a new stage for the config window
+            Stage configStage = new Stage();
+            configStage.initModality(Modality.APPLICATION_MODAL);
+            configStage.initStyle(StageStyle.UTILITY);
+            configStage.setTitle("Configuration");
 
+            // Set the scene and show the stage
+            Scene scene = new Scene(root);
+            configStage.setScene(scene);
+            configStage.setResizable(false);
+            this.currentPopup = configStage;
+
+            // Show the config window
+            controller.setStage(configStage);
+            configStage.showAndWait();
+            
+            // After window is closed, get the config
+            Audio config = controller.getConfig();
+            System.out.println("=== Configuration Saved ===");
+            System.out.println("Bitrate: " + config.getBitrate() + " kbps");
+            System.out.println("VBR: " + config.getVBR());
+            System.out.println("Sample Rate: " + config.getSamplingRate() + " kHz");
+            System.out.println("Channels: " + config.getChannels());
+            System.out.println("==========================");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Show error message to the user
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Failed to load configuration");
+            alert.setContentText("Could not open the configuration window. Please try again.\n" + e.getMessage());
+            alert.showAndWait();
+        }
+    }
 }

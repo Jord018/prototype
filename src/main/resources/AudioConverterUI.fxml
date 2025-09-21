@@ -21,12 +21,6 @@
     <bottom>
         <HBox alignment="CENTER" spacing="10">
             <children>
-            <ButtonBar prefHeight="40.0" prefWidth="200.0">
-               <buttons>
-                  <Label prefHeight="17.0" prefWidth="157.0" text="Label" />
-                  <Button fx:id="Target" mnemonicParsing="false" text="Target" />
-               </buttons>
-            </ButtonBar>
                 <Button fx:id="mp3Btn" text="MP3" />
                 <Button fx:id="m4aBtn" text="M4A" />
                 <Button fx:id="wavBtn" text="WAV" />
