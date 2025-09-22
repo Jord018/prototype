@@ -17,15 +17,11 @@ public class ConfigScreen {
     @FXML private Button applyButton;
     @FXML private Button CloseBtn;
 private Stage stage;
-    private Audio config;
 
-
+private Audio config;
 
     @FXML
     private void initialize() {
-        // Initialize config
-        this.config = new Audio();
-        
         // Set default radio button
         constant.setSelected(true);
         
@@ -39,7 +35,7 @@ private Stage stage;
         bitrateChoice.setValue("192 kbps");
         qualityChoice.setValue("1");
         sampleRateChoice.setValue("44.1 kHz");
-        channelsChoice.setValue(String.valueOf(config.getChannels()));
+        channelsChoice.setValue("1");
 
         // Set toggle group for radio buttons
         //Set Apply and Close Button
@@ -49,27 +45,53 @@ private Stage stage;
         //Set Bitrate
         Handle_Bitrate();
     }
-    
     @FXML
     private void handleApply() {
-        int bitrateKbps = Integer.parseInt(bitrateChoice.getValue().replace(" kbps", ""));
-        int bitrate = bitrateKbps * 1000;
-        String vbr = qualityChoice.getValue();
-        // Parse as double first to handle decimal values, then convert to integer (kHz to Hz)
-        double sampleRateKHz = Double.parseDouble(sampleRateChoice.getValue().replace(" kHz", ""));
-        int sampleRate = (int)(sampleRateKHz * 1000); // Convert kHz to Hz
-        int channels = Integer.parseInt(channelsChoice.getValue());
-        config.setBitrate(bitrate);
-        config.setVBR(vbr);
-        config.setSamplingRate(sampleRate);
-        config.setChannels(channels);
-        
-        // Close the window
-        if (stage != null) {
-            stage.close();
+        if (config != null) {
+            try {
+                int bitrateKbps = Integer.parseInt(bitrateChoice.getValue().replace(" kbps", ""));
+                int bitrate = bitrateKbps * 1000;
+                String vbr = qualityChoice.getValue();
+                double sampleRateKHz = Double.parseDouble(sampleRateChoice.getValue().replace(" kHz", ""));
+                int sampleRate = (int)(sampleRateKHz * 1000);
+                int channels = Integer.parseInt(channelsChoice.getValue());
+
+                config.setBitrate(bitrate);
+                config.setVBR(vbr);
+                config.setSamplingRate(sampleRate);
+                config.setChannels(channels);
+                config.setCBR(constant.isSelected());
+
+                // Close the window
+                if (stage != null) {
+                    stage.close();
+                }
+            } catch (NumberFormatException e) {
+                // Handle parsing errors
+                System.err.println("Error parsing configuration values: " + e.getMessage());
+            }
         }
     }
-    
+
+    public void setConfig(Audio config) {
+        this.config = config;
+        // Update UI to reflect the current config
+        updateUIFromConfig();
+    }
+
+    private void updateUIFromConfig() {
+        if (config == null) return;
+
+        // Update radio buttons
+        constant.setSelected(config.isCBR());
+        Variable.setSelected(!config.isCBR());
+
+        // Update choice boxes
+        bitrateChoice.setValue((config.getBitrate() / 1000) + " kbps");
+        qualityChoice.setValue(config.getVBR());
+        sampleRateChoice.setValue((config.getSamplingRate() / 1000.0) + " kHz");
+        channelsChoice.setValue(String.valueOf(config.getChannels()));
+    }
     public Audio getConfig() {
         return config;
     }
@@ -81,17 +103,21 @@ private Stage stage;
     }
 
 
-    
-   private void Handle_Bitrate(){
-        if(constant.isSelected()){
+
+    private void Handle_Bitrate() {
+        if (constant.isSelected()) {
             Variable.setSelected(false);
-            config.setCBR(true);
+            if (config != null) {
+                config.setCBR(true);
+            }
         }
-        if(Variable.isSelected()){
+        if (Variable.isSelected()) {
             constant.setSelected(false);
-            config.setVBR(true);
+            if (config != null) {
+                config.setCBR(false);
+            }
         }
-   }
+    }
 public void setStage(Stage stage) {
     this.stage = stage;
 }

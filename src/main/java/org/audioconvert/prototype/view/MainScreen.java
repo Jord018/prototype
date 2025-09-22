@@ -1,14 +1,13 @@
 package org.audioconvert.prototype.view;
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,6 +17,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.audioconvert.prototype.controller.Convert;
 import org.audioconvert.prototype.model.Audio;
+import ws.schild.jave.EncoderException;
 
 import java.io.File;
 import java.util.List;
@@ -36,9 +36,14 @@ public class MainScreen {
     @FXML private Label NumQuality;
     private List<File> droppedFiles;
     private Stage currentPopup;
+    private Stage primaryStage;
+    private Audio audio = new Audio();
+    
+    public void setPrimaryStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+    }
     @FXML
     private void initialize() {
-        Audio audio = new Audio();
         
         // Config button action
         configBtn.setOnAction(event -> showConfigPopup());
@@ -78,7 +83,12 @@ public class MainScreen {
                 File selectedDir = outputDir.showDialog(null);
                 System.out.println(selectedDir.getPath()+"/output."+audio.getFormat());
                 audio.setTarget(new File(selectedDir.getAbsolutePath() + "/output." + audio.getFormat()));
-                Convert.Convert(audio);
+                try {
+                    Show_ProgresPopup();
+                    Convert.Convert(audio);
+                } catch (EncoderException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }));
 
@@ -169,8 +179,12 @@ public class MainScreen {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("ConfigUI.fxml"));
             Parent root = loader.load();
             ConfigScreen controller = loader.getController();
+            controller.setConfig(audio);
             // Create a new stage for the config window
             Stage configStage = new Stage();
+            if (primaryStage != null) {
+                configStage.initOwner(primaryStage);  // Set the owner to the main application stage
+            }
             configStage.initModality(Modality.APPLICATION_MODAL);
             configStage.initStyle(StageStyle.UTILITY);
             configStage.setTitle("Configuration");
@@ -189,7 +203,6 @@ public class MainScreen {
             Audio config = controller.getConfig();
             System.out.println("=== Configuration Saved ===");
             System.out.println("Bitrate: " + config.getBitrate() + " kbps");
-            System.out.println("VBR: " + config.getVBR());
             System.out.println("Sample Rate: " + config.getSamplingRate() + " kHz");
             System.out.println("Channels: " + config.getChannels());
             System.out.println("==========================");
@@ -203,5 +216,46 @@ public class MainScreen {
             alert.setContentText("Could not open the configuration window. Please try again.\n" + e.getMessage());
             alert.showAndWait();
         }
+    }
+    @FXML
+    private void Show_ProgresPopup(){
+        Stage popupStage = new Stage();
+        popupStage.initOwner(primaryStage);
+        popupStage.initModality(Modality.APPLICATION_MODAL); // บล็อกหน้าหลักไว้จนกว่าจะปิด
+        popupStage.setTitle("Processing...");
+
+        ProgressBar progressBar = new ProgressBar(0);
+        Label statusLabel = new Label("Working...");
+
+        VBox vbox = new VBox(10, statusLabel, progressBar);
+        vbox.setStyle("-fx-padding: 20; -fx-alignment: center;");
+
+        Scene scene = new Scene(vbox, 300, 120);
+        popupStage.setScene(scene);
+        // Task จำลองงาน
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                for (int i = 1; i <= 100; i++) {
+                    updateProgress(i, 100);
+                    updateMessage("Processing " + i + "%");
+                    Thread.sleep(50); // จำลองงาน
+                }
+                return null;
+            }
+        };
+
+        // bind task -> UI
+        progressBar.progressProperty().bind(task.progressProperty());
+        statusLabel.textProperty().bind(task.messageProperty());
+
+        // ปิด popup เมื่อเสร็จ
+        task.setOnSucceeded(e -> popupStage.close());
+
+        // run task in background
+        new Thread(task).start();
+
+        popupStage.show();
+
     }
 }
