@@ -1,9 +1,12 @@
 package org.audioconvert.prototype.view;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -218,44 +221,82 @@ public class MainScreen {
         }
     }
     @FXML
-    private void Show_ProgresPopup(){
+    private void Show_ProgresPopup() {
         Stage popupStage = new Stage();
         popupStage.initOwner(primaryStage);
-        popupStage.initModality(Modality.APPLICATION_MODAL); // บล็อกหน้าหลักไว้จนกว่าจะปิด
-        popupStage.setTitle("Processing...");
+        popupStage.initModality(Modality.APPLICATION_MODAL);
+        popupStage.setTitle("Converting...");
 
         ProgressBar progressBar = new ProgressBar(0);
-        Label statusLabel = new Label("Working...");
+        progressBar.setPrefWidth(300);
+        Label statusLabel = new Label("Preparing conversion...");
+        statusLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #2c3e50;");
+        Label fileNameLabel = new Label("");
+        fileNameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-style: italic;");
+        
+        VBox vbox = new VBox(15, statusLabel, progressBar, fileNameLabel);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setPadding(new Insets(20));
+        vbox.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 1;");
 
-        VBox vbox = new VBox(10, statusLabel, progressBar);
-        vbox.setStyle("-fx-padding: 20; -fx-alignment: center;");
-
-        Scene scene = new Scene(vbox, 300, 120);
+        Scene scene = new Scene(vbox, 400, 150);
         popupStage.setScene(scene);
-        // Task จำลองงาน
-        Task<Void> task = new Task<>() {
+        
+        // Show the popup immediately
+        popupStage.show();
+
+        // Create a task for the conversion
+        Task<Void> conversionTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                for (int i = 1; i <= 100; i++) {
-                    updateProgress(i, 100);
-                    updateMessage("Processing " + i + "%");
-                    Thread.sleep(50); // จำลองงาน
+                try {
+                    // Update UI on the JavaFX Application Thread
+                    Platform.runLater(() -> {
+                        statusLabel.setText("Starting conversion...");
+                        if (audio.getPath() != null) {
+                            fileNameLabel.setText("File: " + audio.getPath().getName());
+                        }
+                    });
+
+                    // Start the conversion with progress updates
+                    Convert.convertWithProgress(audio, progress -> {
+                        // This runs on the encoder's thread, so we need to update UI on the JavaFX thread
+                        double percentage = progress * 100;
+                        Platform.runLater(() -> {
+                            progressBar.setProgress(progress);
+                            statusLabel.setText(String.format("Converting... %.1f%%", percentage));
+                        });
+                    });
+                    
+                    // Conversion completed successfully
+                    Platform.runLater(() -> {
+                        statusLabel.setText("Conversion completed successfully!");
+                        statusLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+                    });
+                    
+                } catch (Exception e) {
+                    // Handle any errors
+                    Platform.runLater(() -> {
+                        statusLabel.setText("Error during conversion: " + e.getMessage());
+                        statusLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                        e.printStackTrace();
+                    });
+                } finally {
+                    // Close the popup after a short delay
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(1500); // Show success/error message for 1.5 seconds
+                            Platform.runLater(popupStage::close);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }).start();
                 }
                 return null;
             }
         };
 
-        // bind task -> UI
-        progressBar.progressProperty().bind(task.progressProperty());
-        statusLabel.textProperty().bind(task.messageProperty());
-
-        // ปิด popup เมื่อเสร็จ
-        task.setOnSucceeded(e -> popupStage.close());
-
-        // run task in background
-        new Thread(task).start();
-
-        popupStage.show();
-
+        // Start the conversion in a background thread
+        new Thread(conversionTask, "Conversion-Thread").start();
     }
 }
