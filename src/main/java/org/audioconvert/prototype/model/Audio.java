@@ -3,15 +3,20 @@ package org.audioconvert.prototype.model;
 import java.io.File;
 
 public class Audio {
-    private String format;
-    private int channels;
-    private int samplingRate;
-    private int Quality;
+    private String format = "mp3";
+    private int channels = 1;
+    private int samplingRate = 44100; // 44.1 kHz in Hz
+    private int Quality = 5;
     private File target;
     private File path;
-    private int Bitrate;
-    public boolean isCBR;
-    private boolean isVBR;
+    private int Bitrate = 192000; // 192 kbps in bps
+    public boolean isCBR = true;
+    private boolean isVBR = false;
+    private String VBR = "1";
+    
+    public Audio() {
+        // Default constructor with default values
+    }
 
     public String getVBR() {
         return VBR;
@@ -20,8 +25,6 @@ public class Audio {
     public void setVBR(String VBR) {
         this.VBR = VBR;
     }
-
-    private String VBR;
     public void setCBR(boolean CBR) {
         isCBR = CBR;
     }

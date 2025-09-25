@@ -31,11 +31,14 @@ private Audio config;
         sampleRateChoice.getItems().addAll("32 kHz","44.1 kHz", "48 kHz", "96 kHz");
         channelsChoice.getItems().addAll("1", "2");
 
-        // Set default selections
-        bitrateChoice.setValue("192 kbps");
-        qualityChoice.setValue("1");
-        sampleRateChoice.setValue("44.1 kHz");
-        channelsChoice.setValue("1");
+        if (config == null) {
+            bitrateChoice.setValue("192 kbps");
+            qualityChoice.setValue("1");
+            sampleRateChoice.setValue("44.1 kHz");
+            channelsChoice.setValue("1");
+        } else {
+            updateUIFromConfig();
+        }
 
         // Set toggle group for radio buttons
         //Set Apply and Close Button
@@ -64,7 +67,7 @@ private Audio config;
 
                 // Close the window
                 if (stage != null) {
-                    stage.close();
+                    stage.hide();
                 }
             } catch (NumberFormatException e) {
                 // Handle parsing errors
@@ -83,14 +86,26 @@ private Audio config;
         if (config == null) return;
 
         // Update radio buttons
-        constant.setSelected(config.isCBR());
-        Variable.setSelected(!config.isCBR());
+        constant.setSelected(config.isCBR);
+        Variable.setSelected(!config.isCBR);
 
-        // Update choice boxes
-        bitrateChoice.setValue((config.getBitrate() / 1000) + " kbps");
-        qualityChoice.setValue(config.getVBR());
-        sampleRateChoice.setValue((config.getSamplingRate() / 1000.0) + " kHz");
-        channelsChoice.setValue(String.valueOf(config.getChannels()));
+        // Update choice boxes with null checks
+        if (bitrateChoice != null && config.getBitrate() > 0) {
+            bitrateChoice.setValue((config.getBitrate() / 1000) + " kbps");
+        }
+        
+        if (qualityChoice != null && config.getVBR() != null) {
+            qualityChoice.setValue(config.getVBR());
+        }
+        
+        if (sampleRateChoice != null && config.getSamplingRate() > 0) {
+            String sampleRateText = String.format("%.1f kHz", config.getSamplingRate() / 1000.0);
+            sampleRateChoice.setValue(sampleRateText);
+        }
+        
+        if (channelsChoice != null) {
+            channelsChoice.setValue(String.valueOf(config.getChannels()));
+        }
     }
     public Audio getConfig() {
         return config;
@@ -101,8 +116,6 @@ private Audio config;
         // Handle cancel button action
         CloseBtn.getScene().getWindow().hide();
     }
-
-
 
     private void Handle_Bitrate() {
         if (constant.isSelected()) {
