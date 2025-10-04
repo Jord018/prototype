@@ -17,7 +17,6 @@ public class ConfigScreen {
     @FXML private Button applyButton;
     @FXML private Button CloseBtn;
 private Stage stage;
-
 private Audio config;
 
     @FXML

@@ -3,28 +3,37 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<GridPane fx:id="mainGrid" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="389.0" prefWidth="477.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.audioconvert.prototype.view.ConfigScreen">
+<GridPane fx:id="mainGrid" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="292.0" prefWidth="477.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.audioconvert.prototype.view.ConfigScreen">
   <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="269.0" minWidth="10.0" prefWidth="189.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="271.0" minWidth="10.0" prefWidth="258.33333333333337" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="269.0" minWidth="10.0" prefWidth="238.6" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="311.19999999999993" minWidth="10.0" prefWidth="238.19999999999996" />
   </columnConstraints>
   <rowConstraints>
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="125.8" minHeight="10.0" prefHeight="69.2" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="170.0" minHeight="10.0" prefHeight="112.79999999999998" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="108.80000000000001" minHeight="10.0" prefHeight="108.80000000000001" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <HBox prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
+      <HBox prefHeight="100.0" prefWidth="200.0">
          <children>
-            <VBox prefHeight="133.0" prefWidth="103.0">
+            <Label alignment="CENTER" prefHeight="40.0" prefWidth="118.0" text="Advance Setting" textFill="#0000007f" />
+         </children>
+      </HBox>
+      <HBox prefHeight="100.0" prefWidth="239.0" GridPane.rowIndex="1">
+         <children>
+            <VBox prefHeight="98.0" prefWidth="138.0">
                <children>
-                  <Label alignment="TOP_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="43.0" text="BitRate">
+                  <Label alignment="TOP_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="58.0" text="BitRate" textFill="#0000006b">
                      <VBox.margin>
                         <Insets left="25.0" />
                      </VBox.margin>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
                   </Label>
-                  <RadioButton fx:id="constant" mnemonicParsing="false" text="Constant">
+                  <RadioButton fx:id="constant" alignment="CENTER_LEFT" mnemonicParsing="false" prefWidth="70.0" text="Constant">
                      <VBox.margin>
                         <Insets left="25.0" />
                      </VBox.margin>
@@ -32,78 +41,57 @@
                         <ToggleGroup fx:id="bitrateTypeGroup" />
                      </toggleGroup>
                   </RadioButton>
-                  <RadioButton fx:id="Variable" mnemonicParsing="false" text="Variable" toggleGroup="$bitrateTypeGroup">
+                  <RadioButton fx:id="Variable" alignment="CENTER_LEFT" mnemonicParsing="false" text="Variable" toggleGroup="$bitrateTypeGroup">
                      <VBox.margin>
                         <Insets left="25.0" top="25.0" />
                      </VBox.margin>
                   </RadioButton>
                </children>
             </VBox>
-            <VBox prefHeight="133.0" prefWidth="103.0">
+            <VBox prefHeight="98.0" prefWidth="143.0">
                <children>
-                  <ChoiceBox fx:id="bitrateChoice" prefHeight="0.0" prefWidth="75.0">
-                     <VBox.margin>
-                        <Insets top="23.0" />
-                     </VBox.margin>
-                  </ChoiceBox>
-                  <ChoiceBox fx:id="qualityChoice" prefHeight="0.0" prefWidth="75.0">
-                     <VBox.margin>
-                        <Insets top="17.0" />
-                     </VBox.margin>
-                  </ChoiceBox>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ChoiceBox fx:id="bitrateChoice" layoutX="-7.0" layoutY="29.0" prefHeight="0.0" prefWidth="75.0" />
+                        <ChoiceBox fx:id="qualityChoice" layoutX="-7.0" layoutY="71.0" prefHeight="0.0" prefWidth="75.0" />
+                     </children>
+                  </AnchorPane>
                </children>
             </VBox>
          </children>
       </HBox>
       <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <children>
-            <VBox prefHeight="133.0" prefWidth="80.0">
+            <VBox prefHeight="98.0" prefWidth="124.0">
                <children>
-                  <Label prefHeight="61.0" prefWidth="80.0" text="Sample Rate" />
-                  <Label layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="100.0" text="Channels" />
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label alignment="CENTER_RIGHT" layoutX="38.0" layoutY="33.0" text="Sample Rate" />
+                        <Label alignment="CENTER_RIGHT" layoutX="56.0" layoutY="75.0" text="Channels" />
+                     </children>
+                  </AnchorPane>
                </children>
             </VBox>
-            <VBox layoutX="10.0" layoutY="10.0" prefHeight="133.0" prefWidth="200.0">
+            <VBox layoutX="10.0" layoutY="10.0" prefHeight="130.0" prefWidth="138.0">
                <children>
-                  <ChoiceBox fx:id="sampleRateChoice" prefWidth="100.0">
-                     <VBox.margin>
-                        <Insets top="16.0" />
-                     </VBox.margin>
-                  </ChoiceBox>
-                  <ChoiceBox fx:id="channelsChoice" layoutX="10.0" layoutY="10.0" prefHeight="25.0" prefWidth="68.0">
-                     <VBox.margin>
-                        <Insets top="25.0" />
-                     </VBox.margin>
-                  </ChoiceBox>
+                  <AnchorPane prefHeight="200.0" prefWidth="115.0">
+                     <children>
+                        <ChoiceBox fx:id="sampleRateChoice" layoutX="14.0" layoutY="29.0" prefHeight="25.0" prefWidth="75.0" />
+                        <ChoiceBox fx:id="channelsChoice" layoutX="14.0" layoutY="71.0" prefHeight="0.0" prefWidth="75.0" />
+                     </children>
+                  </AnchorPane>
                </children>
             </VBox>
          </children>
       </HBox>
       <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
          <children>
-            <HBox layoutX="10.0" layoutY="10.0" prefHeight="129.0" prefWidth="96.0" />
-            <HBox prefHeight="129.0" prefWidth="83.0">
+            <AnchorPane prefHeight="98.0" prefWidth="241.0">
                <children>
-                  <Button fx:id="applyButton" mnemonicParsing="false" onAction="#handleApply" text="Apply">
-                     <HBox.margin>
-                        <Insets top="100.0" />
-                     </HBox.margin>
-                  </Button>
+                  <Button layoutX="72.0" layoutY="49.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="55.0" text="Apply" />
+                  <Button fx:id="CloseBtn" layoutX="146.0" layoutY="49.0" mnemonicParsing="false" onAction="#handleCancel" prefHeight="26.0" prefWidth="55.0" text="Close" />
                </children>
-            </HBox>
-            <HBox layoutX="10.0" layoutY="10.0" prefHeight="129.0" prefWidth="85.0">
-               <children>
-                  <VBox prefHeight="200.0" prefWidth="100.0">
-                     <children>
-                        <Button fx:id="CloseBtn" mnemonicParsing="false" onAction="#handleCancel" text="Close">
-                           <VBox.margin>
-                              <Insets top="100.0" />
-                           </VBox.margin>
-                        </Button>
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
+            </AnchorPane>
          </children>
       </HBox>
    </children>
