@@ -20,7 +20,6 @@ public class Launcher extends Application {
         primaryStage.setTitle("Audio Converter");
         primaryStage.setScene(scene);
         primaryStage.show();
-        System.out.print("hello world");
     }
     public static void main(String[] args) {
         launch(args);

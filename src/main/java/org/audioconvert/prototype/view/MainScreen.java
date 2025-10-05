@@ -91,6 +91,8 @@ public class MainScreen {
 
     @FXML
     private void initialize() {
+        // Set up drag and drop functionality
+        setupDragAndDrop(audio);
 
         ToggleGroup qualityGroup = new ToggleGroup();
         quality1.setToggleGroup(qualityGroup);
@@ -98,19 +100,18 @@ public class MainScreen {
         quality3.setToggleGroup(qualityGroup);
         quality4.setToggleGroup(qualityGroup);
 
-        // set format default
         updateQualityOptions("mp3");
 
         configBtn.setOnAction(event -> showConfigPopup());
 
         convertBtn.setOnAction(event -> {
-            System.out.println("Convert button clicked!");
+            Show_ProgresPopup();
         });
-
-            mp3Btn.setOnAction(e -> {
-                audio.setFormat("mp3");
-                updateQualityOptions("mp3");
-            });
+        mp3Btn.setOnAction(e -> {
+            audio.setFormat("mp3");
+            System.out.println("Format: " + audio.getFormat());
+            updateQualityOptions("mp3");
+        });
             m4aBtn.setOnAction(e -> {
                 audio.setFormat("m4a");
                 updateQualityOptions("m4a");
@@ -193,7 +194,8 @@ public class MainScreen {
                 }
             }
 
-            event.setDropCompleted(success);
+            event.setDropCompleted(
+                    success);
             event.consume();
         });
 
@@ -249,6 +251,21 @@ public class MainScreen {
 
     @FXML
     private void Show_ProgresPopup() {
+        // Check if a file is selected
+        if (audio.getPath() == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("No File Selected");
+            alert.setContentText("Please select or drop a file to convert first.");
+            alert.showAndWait();
+            return;
+        }
+        
+        // Set the target file path
+        String sourcePath = audio.getPath().getAbsolutePath();
+        String targetPath = sourcePath.substring(0, sourcePath.lastIndexOf('.')) + "." + audio.getFormat();
+        audio.setTarget(new File(targetPath));
+
         Stage popupStage = new Stage();
         popupStage.initOwner(primaryStage);
         popupStage.initModality(Modality.APPLICATION_MODAL);
