@@ -9,7 +9,7 @@
 
 <Pane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.audioconvert.prototype.view.MainScreen">
    <children>
-      <Label prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: E6E6E6; -fx-background-image: &quot;texture.png&quot;; -fx-border-image-repeat: repeat;" />
+      <Label prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #E6E6E6; -fx-background-image: url('texture.png'); -fx-background-repeat: repeat;" />
       <ImageView fitHeight="400.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@Background.png" />

@@ -88,7 +88,7 @@
          <children>
             <AnchorPane prefHeight="98.0" prefWidth="241.0">
                <children>
-                  <Button layoutX="72.0" layoutY="49.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="55.0" text="Apply" />
+                  <Button fx:id="applyButton" layoutX="72.0" layoutY="49.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="55.0" text="Apply" />
                   <Button fx:id="CloseBtn" layoutX="146.0" layoutY="49.0" mnemonicParsing="false" onAction="#handleCancel" prefHeight="26.0" prefWidth="55.0" text="Close" />
                </children>
             </AnchorPane>
