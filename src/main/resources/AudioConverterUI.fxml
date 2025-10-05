@@ -2,101 +2,147 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="400" prefWidth="600" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.audioconvert.prototype.view.MainScreen">
-
-    <!-- Bottom Bar -->
-    <bottom>
-        <HBox alignment="CENTER" prefHeight="60.0" prefWidth="600.0" spacing="10">
-            <children>
-            <HBox prefHeight="100.0" prefWidth="200.0" />
-            <AnchorPane prefHeight="73.0" prefWidth="392.0">
+<Pane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.audioconvert.prototype.view.MainScreen">
+   <children>
+      <Label prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: E6E6E6; -fx-background-image: &quot;texture.png&quot;; -fx-border-image-repeat: repeat;" />
+      <ImageView fitHeight="400.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@Background.png" />
+         </image></ImageView>
+      <BorderPane prefHeight="400" prefWidth="600">
+      
+          <!-- Bottom Bar -->
+          <bottom>
+              <HBox alignment="CENTER" prefHeight="60.0" prefWidth="600.0" spacing="10">
+                  <children>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <Button layoutX="51.0" layoutY="-22.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="60.0">
+                                 <graphic>
+                                    <ImageView fitHeight="25.0" fitWidth="25.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@play.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic></Button>
+                           </children>
+                        </AnchorPane>
+                     </children></HBox>
+                  <AnchorPane prefHeight="73.0" prefWidth="391.0">
+                     <children>
+                            <Button fx:id="configBtn" layoutX="222.0" layoutY="-2.0" prefHeight="35.0" prefWidth="35.0">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <graphic>
+                              <ImageView fitHeight="20.0" fitWidth="20.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@settings.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                            <Button fx:id="convertBtn" layoutX="276.0" layoutY="-2.0" prefHeight="35.0" prefWidth="80.0" text="Convert">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </AnchorPane>
+                  </children>
+              </HBox>
+          </bottom>
+         <left>
+              <Label fx:id="dropBarLabel" prefHeight="234.0" prefWidth="302.0" style="-fx-border-color: #636363; -fx-border-width: 2; -fx-alignment: center; -fx-pref-height: 200; -fx-background-color: EDEDED;" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets left="50.0" />
+               </BorderPane.margin>
+               <graphic>
+                  <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@DropFiles.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Label>
+         </left>
+         <center>
+            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="204.0" prefWidth="197.0" BorderPane.alignment="CENTER">
                <children>
-                      <Button fx:id="configBtn" layoutX="222.0" layoutY="-2.0" prefHeight="35.0" prefWidth="35.0" text="⚙">
-                     <font>
-                        <Font size="16.0" />
-                     </font>
-                  </Button>
-                      <Button fx:id="convertBtn" layoutX="274.0" layoutY="-1.0" prefHeight="35.0" prefWidth="80.0" text="Convert">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Button>
+                  <AnchorPane prefHeight="200.0" prefWidth="111.0">
+                     <children>
+                        <Label disable="true" layoutX="9.0" layoutY="4.0" text="Convert To" textFill="#00000080">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                           <effect>
+                              <Blend />
+                           </effect>
+                        </Label>
+                            <Button fx:id="mp3Btn" layoutX="8.0" layoutY="30.0" prefHeight="35.0" prefWidth="70.0" text="MP3">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Button>
+                            <Button fx:id="m4aBtn" layoutX="8.0" layoutY="72.0" prefHeight="35.0" prefWidth="70.0" text="M4A">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Button>
+                            <Button fx:id="wavBtn" layoutX="8.0" layoutY="116.0" prefHeight="35.0" prefWidth="70.0" text="WAV">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Button>
+                            <Button fx:id="flacBtn" layoutX="8.0" layoutY="157.0" prefHeight="35.0" prefWidth="70.0" text="FLAC">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Button>
+                        <Label disable="true" layoutX="129.0" layoutY="4.0" text="Quality" textFill="#0000007f">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                           <effect>
+                              <Blend />
+                           </effect>
+                        </Label>
+                        <RadioButton layoutX="111.0" layoutY="31.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality1" />
+                        <RadioButton layoutX="111.0" layoutY="60.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality2" />
+                        <RadioButton layoutX="111.0" layoutY="90.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality3" />
+                        <RadioButton layoutX="111.0" layoutY="121.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="80.0" text="Quality4" />
+                     </children>
+                  </AnchorPane>
                </children>
-            </AnchorPane>
-            </children>
-        </HBox>
-    </bottom>
-   <left>
-        <Label fx:id="dropBarLabel" prefHeight="234.0" prefWidth="302.0" style="-fx-border-color: gray; -fx-border-width: 2; -fx-alignment: center; -fx-pref-height: 200;" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets left="50.0" />
-         </BorderPane.margin>
-         <graphic>
-            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../../../OneDrive/Desktop/download.png" />
-               </image>
-            </ImageView>
-         </graphic></Label>
-   </left>
-   <center>
-      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="204.0" prefWidth="197.0" BorderPane.alignment="CENTER">
-         <children>
-            <AnchorPane prefHeight="200.0" prefWidth="111.0">
-               <children>
-                  <Label layoutX="9.0" layoutY="4.0" text="Convert To" textFill="#00000080">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                      <Button fx:id="mp3Btn" layoutX="8.0" layoutY="30.0" prefHeight="35.0" prefWidth="70.0" text="MP3">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Button>
-                      <Button fx:id="m4aBtn" layoutX="8.0" layoutY="72.0" prefHeight="35.0" prefWidth="70.0" text="M4A">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Button>
-                      <Button fx:id="wavBtn" layoutX="8.0" layoutY="116.0" prefHeight="35.0" prefWidth="70.0" text="WAV">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Button>
-                      <Button fx:id="flacBtn" layoutX="8.0" layoutY="157.0" prefHeight="35.0" prefWidth="70.0" text="FLAC">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Button>
-                  <Label layoutX="129.0" layoutY="4.0" text="Quality" textFill="#0000007f">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <RadioButton layoutX="111.0" layoutY="31.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality1" />
-                  <RadioButton layoutX="111.0" layoutY="60.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality2" />
-                  <RadioButton layoutX="111.0" layoutY="90.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality3" />
-                  <RadioButton layoutX="111.0" layoutY="121.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="80.0" text="Quality4" />
-               </children>
-            </AnchorPane>
-         </children>
-         <BorderPane.margin>
-            <Insets right="30.0" />
-         </BorderPane.margin></VBox>
-   </center>
-   <top>
-      <Label prefHeight="40.0" prefWidth="600.0" text="Audio converter " textFill="#0000009d" BorderPane.alignment="CENTER">
-         <padding>
-            <Insets left="15.0" />
-         </padding></Label>
-   </top>
-   <opaqueInsets>
-      <Insets />
-   </opaqueInsets>
-
-</BorderPane>
+               <BorderPane.margin>
+                  <Insets right="30.0" />
+               </BorderPane.margin>
+            </VBox>
+         </center>
+         <top>
+            <Label disable="true" prefHeight="40.0" prefWidth="600.0" text="Audio converter " textFill="#0000009d" BorderPane.alignment="CENTER">
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+               <font>
+                  <Font size="13.0" />
+               </font>
+               <effect>
+                  <Blend />
+               </effect>
+            </Label>
+         </top>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      
+      </BorderPane>
+   </children>
+</Pane>
