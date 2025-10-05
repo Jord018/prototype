@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<Pane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.audioconvert.prototype.view.MainScreen">
+<Pane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.audioconvert.prototype.view.MainScreen">
    <children>
       <Label prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: E6E6E6; -fx-background-image: &quot;texture.png&quot;; -fx-border-image-repeat: repeat;" />
       <ImageView fitHeight="400.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
@@ -114,10 +114,10 @@
                               <Blend />
                            </effect>
                         </Label>
-                        <RadioButton layoutX="111.0" layoutY="31.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality1" />
-                        <RadioButton layoutX="111.0" layoutY="60.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality2" />
-                        <RadioButton layoutX="111.0" layoutY="90.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality3" />
-                        <RadioButton layoutX="111.0" layoutY="121.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="80.0" text="Quality4" />
+                        <RadioButton fx:id="quality1" layoutX="111.0" layoutY="31.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality1" />
+                        <RadioButton fx:id="quality2" layoutX="111.0" layoutY="60.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality2" />
+                        <RadioButton fx:id="quality3" layoutX="111.0" layoutY="90.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Quality3" />
+                        <RadioButton fx:id="quality4" layoutX="111.0" layoutY="121.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="80.0" text="Quality4" />
                      </children>
                   </AnchorPane>
                </children>

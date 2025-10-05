@@ -26,79 +26,120 @@ import java.io.File;
 import java.util.List;
 
 public class MainScreen {
-    @FXML
-    private Button closeBtn;
-    @FXML private Button mp3Btn;
-    @FXML private Button m4aBtn;
-    @FXML private Button wavBtn;
-    @FXML private Button flacBtn;
+    @FXML private RadioButton quality1, quality2, quality3, quality4;
+    @FXML private Button mp3Btn, m4aBtn, wavBtn, flacBtn;
+    @FXML private Button PlayBtn;
     @FXML private Button configBtn;
     @FXML private Button convertBtn;
     @FXML private Label dropBarLabel;
-    @FXML private Slider Quality;
-    @FXML private Label NumQuality;
     private List<File> droppedFiles;
     private Stage currentPopup;
     private Stage primaryStage;
     private Audio audio = new Audio();
+
+    private void updateQualityOptions(String format) {
+        switch(format) {
+            case "mp3":
+                enableQualities(true);
+                quality1.setText("64 kbps");
+                quality2.setText("128 kbps");
+                quality3.setText("192 kbps");
+                quality4.setText("320 kbps");
+                quality1.setSelected(true);
+                audio.setQuality(64);
+                break;
+            case "m4a":
+                enableQualities(true);
+                quality1.setText("64 kbps");
+                quality2.setText("128 kbps");
+                quality3.setText("160 kbps");
+                quality4.setText("256 kbps");
+                quality1.setSelected(true);
+                audio.setQuality(64);
+                break;
+            case "wav":
+                enableQualities(true);
+                quality1.setText("20 kHz");
+                quality2.setText("44.1 kHz");
+                quality3.setText("48 kHz");
+                quality4.setText("96 kHz");
+                quality1.setSelected(true);
+                audio.setQuality(20); // หรือ 44.1 แล้วแต่ต้องการ
+                break;
+            case "flac":
+                enableQualities(false);
+                quality1.setText("N/A");
+                quality2.setText("N/A");
+                quality3.setText("N/A");
+                quality4.setText("N/A");
+                break;
+        }
+    }
+
+
+
+    private void enableQualities(boolean enable) {
+        quality1.setDisable(!enable);
+        quality2.setDisable(!enable);
+        quality3.setDisable(!enable);
+        quality4.setDisable(!enable);
+    }
     
     public void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
+
     @FXML
     private void initialize() {
-        
-        // Config button action
+
+        ToggleGroup qualityGroup = new ToggleGroup();
+        quality1.setToggleGroup(qualityGroup);
+        quality2.setToggleGroup(qualityGroup);
+        quality3.setToggleGroup(qualityGroup);
+        quality4.setToggleGroup(qualityGroup);
+
+        // set format default
+        updateQualityOptions("mp3");
+
         configBtn.setOnAction(event -> showConfigPopup());
 
-        // Initialize buttons
-        closeBtn.setOnAction(e -> System.exit(0));
-        mp3Btn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                audio.setFormat("mp3");
-                System.out.println("Format: " + audio.getFormat());
-            }
+        convertBtn.setOnAction(event -> {
+            System.out.println("Convert button clicked!");
         });
-        m4aBtn.setOnAction((new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                audio.setFormat("m4a");
-            }
-        }));
-        wavBtn.setOnAction((new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                audio.setFormat("wav");
-            }
-        }));
-        flacBtn.setOnAction((new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                audio.setFormat("flac");
-            }
-        }));
-        convertBtn.setOnAction((new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                DirectoryChooser outputDir = new DirectoryChooser();
-                outputDir.setTitle("Select Output Directory");
-                File selectedDir = outputDir.showDialog(null);
-                System.out.println(selectedDir.getPath()+"/output."+audio.getFormat());
-                audio.setTarget(new File(selectedDir.getAbsolutePath() + "/output." + audio.getFormat()));
-                try {
-                    Show_ProgresPopup();
-                    Convert.Convert(audio);
-                } catch (EncoderException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }));
 
-        // Set up drag and drop handlers
-        setupDragAndDrop(audio);
-        setupSlider(audio);
+            mp3Btn.setOnAction(e -> {
+                audio.setFormat("mp3");
+                updateQualityOptions("mp3");
+            });
+            m4aBtn.setOnAction(e -> {
+                audio.setFormat("m4a");
+                updateQualityOptions("m4a");
+            });
+            wavBtn.setOnAction(e -> {
+                audio.setFormat("wav");
+                updateQualityOptions("wav");
+            });
+            flacBtn.setOnAction(e -> {
+                audio.setFormat("flac");
+                updateQualityOptions("flac");
+            });
+
+            qualityGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+                if (flacBtn.isFocused() || quality1.isDisabled()) return;
+                if (quality1.isSelected()) audio.setQuality(parseQuality(quality1.getText()));
+                else if (quality2.isSelected()) audio.setQuality(parseQuality(quality2.getText()));
+                else if (quality3.isSelected()) audio.setQuality(parseQuality(quality3.getText()));
+                else if (quality4.isSelected()) audio.setQuality(parseQuality(quality4.getText()));
+            });
+        }
+
+    private int parseQuality(String txt) {
+        // "128 kbps" or "44.1 kHz"
+        String num = txt.split(" ")[0].replace("kHz", "").replace("kbps", "");
+        return (int) Double.parseDouble(num);
     }
+
+
     private void setupDragAndDrop(Audio audio) {
         // Set up drag over event
         dropBarLabel.setOnDragOver(event -> {
@@ -158,31 +199,16 @@ public class MainScreen {
 
     }
 
-    private void setupSlider(Audio audio) {
-        Quality.setMin(0);
-        Quality.setMax(320);
-        Quality.setValue(64); // ค่าเริ่มต้น
-
-        Quality.setShowTickMarks(false);   // แสดงขีดเล็ก
-        Quality.setShowTickLabels(true);  // แสดงตัวเลข
-        Quality.setMajorTickUnit(25);     // ระยะห่างระหว่างขีดใหญ่
-        Quality.setMinorTickCount(3);     // ขีดย่อย
-        Quality.setBlockIncrement(64);     // เลื่อนทีละกี่หน่วย
-
-        // ฟังการเปลี่ยนแปลงค่า
-        Quality.valueProperty().addListener((observable, oldValue, newValue) -> {
-            audio.setQuality(newValue.intValue());
-        });
-
-    }
     @FXML
     private void showConfigPopup() {
         try {
+
             // Load the FXML file
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("ConfigUI.fxml"));
             Parent root = loader.load();
             ConfigScreen controller = loader.getController();
             controller.setConfig(audio);
+
             // Create a new stage for the config window
             Stage configStage = new Stage();
             if (primaryStage != null) {
@@ -220,6 +246,7 @@ public class MainScreen {
             alert.showAndWait();
         }
     }
+
     @FXML
     private void Show_ProgresPopup() {
         Stage popupStage = new Stage();

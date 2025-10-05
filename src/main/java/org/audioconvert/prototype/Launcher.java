@@ -16,7 +16,7 @@ public class Launcher extends Application {
         // Get the controller and set the primary stage
         MainScreen mainScreenController = loader.getController();
         mainScreenController.setPrimaryStage(primaryStage);
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 600, 400);
         primaryStage.setTitle("Audio Converter");
         primaryStage.setScene(scene);
         primaryStage.show();
