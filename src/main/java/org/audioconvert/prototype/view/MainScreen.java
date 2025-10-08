@@ -2,16 +2,14 @@ package org.audioconvert.prototype.view;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
-import javafx.stage.DirectoryChooser;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,22 +18,32 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.audioconvert.prototype.controller.Convert;
 import org.audioconvert.prototype.model.Audio;
-import ws.schild.jave.EncoderException;
+import javafx.scene.input.KeyCode;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+
 
 import java.io.File;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 
 public class MainScreen {
     @FXML private RadioButton quality1, quality2, quality3, quality4;
     @FXML private Button mp3Btn, m4aBtn, wavBtn, flacBtn;
-    @FXML private Button PlayBtn;
+    @FXML private Button PlayButton;
+    @FXML private Button StopButton;
     @FXML private Button configBtn;
     @FXML private Button convertBtn;
     @FXML private Label dropBarLabel;
-    private List<File> droppedFiles;
+    @FXML private ListView<String> dropBarList;
+    @FXML private ImageView DropFilesPic;
+
+    private List<File> droppedFiles = new ArrayList<>();
     private Stage currentPopup;
     private Stage primaryStage;
     private Audio audio = new Audio();
+    private MediaPlayer mediaPlayer;
 
     private void updateQualityOptions(String format) {
         switch(format) {
@@ -90,9 +98,137 @@ public class MainScreen {
     }
 
     @FXML
+    private void playSelectedFile() {
+        String selectedFileName = dropBarList.getSelectionModel().getSelectedItem();
+        if (selectedFileName == null) {
+            System.out.println("No file selected in the list.");
+            return;
+        }
+
+        File fileToPlay = null;
+        for (File file : droppedFiles) {
+            if (file.getName().equals(selectedFileName)) {
+                fileToPlay = file;
+                break;
+            }
+        }
+
+        if (fileToPlay == null) {
+            System.out.println("Selected file object not found.");
+            return;
+        }
+
+        // 1. หยุดเพลงเก่า (ถ้ามี)
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            // ไม่ต้อง dispose ถ้าต้องการให้ MediaPlayer พร้อมเล่นต่อทันที
+        }
+
+        // 2. หากไฟล์ที่เลือกเป็นไฟล์เดียวกับที่กำลังเล่น/หยุดชั่วคราว ให้เล่นต่อ
+        if (mediaPlayer != null && mediaPlayer.getMedia().getSource().equals(fileToPlay.toURI().toString())) {
+            mediaPlayer.play();
+            System.out.println("Resuming: " + selectedFileName);
+            return;
+        }
+
+
+        try {
+            // 3. สร้าง Media และ MediaPlayer ตัวใหม่
+            if (mediaPlayer != null) {
+                mediaPlayer.dispose(); // ทิ้ง MediaPlayer เก่าก่อนสร้างใหม่สำหรับไฟล์ใหม่
+            }
+            Media media = new Media(fileToPlay.toURI().toURL().toString());
+            mediaPlayer = new MediaPlayer(media);
+
+            // 4. เริ่มเล่น
+            mediaPlayer.play();
+            System.out.println("Playing: " + selectedFileName);
+
+            // 5. ตั้งค่า End of Media และ Error Handling
+            mediaPlayer.setOnEndOfMedia(() -> {
+                System.out.println("Playback finished.");
+                // สามารถเพิ่มโค้ดเปลี่ยนไอคอน Play/Stop ที่นี่ได้
+            });
+            mediaPlayer.setOnError(() -> {
+                System.err.println("Media Player Error: " + mediaPlayer.getError());
+            });
+
+        } catch (Exception e) {
+            System.err.println("Failed to play file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void stopPlayback() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            System.out.println("Playback stopped.");
+        }
+    }
+
+    private void updatePlaceholderVisibility() {
+        if (DropFilesPic != null) {
+            // ตรวจสอบว่ามีไฟล์หรือไม่
+            boolean hasFiles = droppedFiles != null && !droppedFiles.isEmpty();
+
+            // ซ่อน/แสดง Placeholder
+            DropFilesPic.setVisible(!hasFiles);
+            DropFilesPic.setManaged(!hasFiles);
+        }
+    }
+
+    private void setupDeleteFileOnKeyPress() {
+        dropBarList.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.DELETE || event.getCode() == KeyCode.BACK_SPACE) {
+                final int selectedIndex = dropBarList.getSelectionModel().getSelectedIndex();
+
+                if (selectedIndex != -1) {
+                    // ตรวจสอบว่าไฟล์ที่ถูกลบเป็นไฟล์แรกหรือไม่
+                    boolean wasFirstFile = selectedIndex == 0;
+
+                    // 1. ตรวจสอบและหยุดเล่นเพลงหากไฟล์ที่กำลังเล่นถูกลบ
+                    if (mediaPlayer != null && droppedFiles.get(selectedIndex).toURI().toString().equals(mediaPlayer.getMedia().getSource())) {
+                        mediaPlayer.stop();
+                        mediaPlayer.dispose();
+                        mediaPlayer = null;
+                    }
+
+                    // 2. ลบไฟล์ออกจากรายการ
+                    if (selectedIndex < droppedFiles.size()) {
+                        droppedFiles.remove(selectedIndex);
+                    }
+                    dropBarList.getItems().remove(selectedIndex);
+
+                    // 3. จัดการการแสดงผล
+                    updatePlaceholderVisibility();
+
+                    // 4. อัปเดต audio.setPath
+                    if (wasFirstFile) {
+                        if (!droppedFiles.isEmpty()) {
+                            audio.setPath(droppedFiles.get(0));
+                        } else {
+                            audio.setPath(null);
+                        }
+                    }
+                    event.consume();
+                }
+            }
+        });
+    }
+
+    @FXML
     private void initialize() {
+
+        // *** เชื่อมต่อปุ่มเล่นและปุ่มหยุด ***
+        PlayButton.setOnAction(event -> playSelectedFile());
+        StopButton.setOnAction(event -> stopPlayback());
+
         // Set up drag and drop functionality
         setupDragAndDrop(audio);
+
+        setupDeleteFileOnKeyPress();
+        updatePlaceholderVisibility();
 
         ToggleGroup qualityGroup = new ToggleGroup();
         quality1.setToggleGroup(qualityGroup);
@@ -112,27 +248,26 @@ public class MainScreen {
             System.out.println("Format: " + audio.getFormat());
             updateQualityOptions("mp3");
         });
-            m4aBtn.setOnAction(e -> {
-                audio.setFormat("m4a");
-                updateQualityOptions("m4a");
-            });
-            wavBtn.setOnAction(e -> {
-                audio.setFormat("wav");
-                updateQualityOptions("wav");
-            });
-            flacBtn.setOnAction(e -> {
-                audio.setFormat("flac");
-                updateQualityOptions("flac");
-            });
-
-            qualityGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-                if (flacBtn.isFocused() || quality1.isDisabled()) return;
-                if (quality1.isSelected()) audio.setQuality(parseQuality(quality1.getText()));
-                else if (quality2.isSelected()) audio.setQuality(parseQuality(quality2.getText()));
-                else if (quality3.isSelected()) audio.setQuality(parseQuality(quality3.getText()));
-                else if (quality4.isSelected()) audio.setQuality(parseQuality(quality4.getText()));
-            });
-        }
+        m4aBtn.setOnAction(e -> {
+            audio.setFormat("m4a");
+            updateQualityOptions("m4a");
+        });
+        wavBtn.setOnAction(e -> {
+            audio.setFormat("wav");
+            updateQualityOptions("wav");
+        });
+        flacBtn.setOnAction(e -> {
+            audio.setFormat("flac");
+            updateQualityOptions("flac");
+        });
+        qualityGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (flacBtn.isFocused() || quality1.isDisabled()) return;
+            if (quality1.isSelected()) audio.setQuality(parseQuality(quality1.getText()));
+            else if (quality2.isSelected()) audio.setQuality(parseQuality(quality2.getText()));
+            else if (quality3.isSelected()) audio.setQuality(parseQuality(quality3.getText()));
+            else if (quality4.isSelected()) audio.setQuality(parseQuality(quality4.getText()));
+        });
+    }
 
     private int parseQuality(String txt) {
         // "128 kbps" or "44.1 kHz"
@@ -143,8 +278,8 @@ public class MainScreen {
 
     private void setupDragAndDrop(Audio audio) {
         // Set up drag over event
-        dropBarLabel.setOnDragOver(event -> {
-            if (event.getGestureSource() != dropBarLabel &&
+        dropBarList.setOnDragOver(event -> {
+            if (event.getGestureSource() != dropBarList &&
                     event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
@@ -152,8 +287,8 @@ public class MainScreen {
         });
 
         // Set up drag entered event (visual feedback)
-        dropBarLabel.setOnDragEntered(event -> {
-            if (event.getGestureSource() != dropBarLabel &&
+        dropBarList.setOnDragEntered(event -> {
+            if (event.getGestureSource() != dropBarList &&
                     event.getDragboard().hasFiles()) {
 
             }
@@ -161,44 +296,97 @@ public class MainScreen {
         });
 
         // Set up drag exited event (reset visual feedback)
-        dropBarLabel.setOnDragExited(event -> {
+        dropBarList.setOnDragExited(event -> {
             event.consume();
         });
 
         // Handle dropped files
-        dropBarLabel.setOnDragDropped(event -> {
+        dropBarList.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             boolean success = false;
+
+            // กำหนดส่วนขยายไฟล์เสียงที่ยอมรับ
+            final java.util.Set<String> AUDIO_EXTENSIONS = java.util.Set.of(
+                    "mp3", "m4a", "wav", "flac", "ogg", "aac", "wma", "aiff"
+            );
+
             if (db.hasFiles()) {
-                droppedFiles = db.getFiles();
-                if (!droppedFiles.isEmpty()) {
-                    // สร้างข้อความชื่อไฟล์ทั้งหมด
-                    StringBuilder fileNames = new StringBuilder();
-                    for (int i = 0; i < droppedFiles.size(); i++) {
-                        File file = droppedFiles.get(i);
-                        fileNames.append(file.getName());
-                        if (i < droppedFiles.size() - 1) {
-                            fileNames.append(", ");
+                List<File> newlyDroppedFiles = db.getFiles();
+
+                if (!newlyDroppedFiles.isEmpty()) {
+
+                    List<File> filesToAdd = new java.util.ArrayList<>();
+                    // ดึงรายการชื่อไฟล์ปัจจุบันจาก ListView
+                    javafx.collections.ObservableList<String> dropBarItems = dropBarList.getItems();
+
+                    for (File file : newlyDroppedFiles) {
+                        String fileName = file.getName();
+
+                        // 1. ตรวจสอบส่วนขยายไฟล์ว่าเป็นไฟล์เสียงหรือไม่
+                        String extension = "";
+                        int i = fileName.lastIndexOf('.');
+                        if (i > 0) {
+                            extension = fileName.substring(i + 1).toLowerCase();
                         }
 
-                        System.out.println("Dropped file: " + file.getAbsolutePath());
+                        if (!AUDIO_EXTENSIONS.contains(extension)) {
+                            System.out.println("File skipped (Not an audio file): " + fileName);
+                            continue;
+                        }
+
+                        // 2. ตรวจสอบความซ้ำซ้อนของชื่อไฟล์
+                        if (!dropBarItems.contains(fileName)) {
+                            filesToAdd.add(file);
+                        } else {
+                            System.out.println("File skipped (Duplicate name): " + fileName);
+                        }
                     }
 
+                    // 3. อัปเดตรายการไฟล์ทั้งหมดและ ListView
+                    if (!filesToAdd.isEmpty()) {
+                        if (droppedFiles == null) {
+                            droppedFiles = new java.util.ArrayList<>();
+                        }
 
-                    dropBarLabel.setText(fileNames.toString());
+                        // เพิ่มไฟล์ใหม่เข้าในรายการเก็บไฟล์จริง
+                        droppedFiles.addAll(filesToAdd);
 
+                        // เพิ่มชื่อไฟล์ใหม่ลงใน ListView
+                        for (File file : filesToAdd) {
+                            dropBarItems.add(file.getName());
+                            System.out.println("Added file: " + file.getAbsolutePath());
+                        }
 
-                    audio.setPath(droppedFiles.get(0));
+                        // === 4. จัดเรียงชื่อไฟล์ใน ListView ตามลำดับตัวอักษร ===
+                        dropBarItems.sort(String::compareTo);
+                        // หรือ dropBarItems.sort((s1, s2) -> s1.compareToIgnoreCase(s2));
+                        // ถ้าต้องการจัดเรียงโดยไม่คำนึงถึงตัวพิมพ์เล็ก-ใหญ่
+                        // =======================================================
 
-                    success = true;
+                        if (audio.getPath() == null) {
+                            audio.setPath(droppedFiles.get(0));
+                        }
+                        success = true;
+                    } else {
+                        System.out.println("No valid, non-duplicate audio files were dropped.");
+                    }
                 }
             }
 
-            event.setDropCompleted(
-                    success);
+            if (DropFilesPic != null) {
+                // ซ่อนรูปภาพถ้ามีไฟล์ใดๆ อยู่ในรายการ (droppedFiles ไม่เป็น null และไม่ว่างเปล่า)
+                boolean hasFiles = droppedFiles != null && !droppedFiles.isEmpty();
+                DropFilesPic.setVisible(!hasFiles);
+                DropFilesPic.setManaged(!hasFiles);
+
+                // ทำให้ ListView แสดงผลเต็มพื้นที่เมื่อ Placeholder ถูกซ่อน
+                dropBarList.setVisible(true);
+                dropBarList.setManaged(true);
+            }
+
+            event.setDropCompleted(success);
             event.consume();
         });
-
     }
 
     @FXML

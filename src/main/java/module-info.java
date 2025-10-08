@@ -4,6 +4,7 @@ module org.audioconvert.prototype {
     requires jave.core;
     requires javafx.graphics;
     requires java.desktop;
+    requires javafx.media;
 
     opens org.audioconvert.prototype to javafx.fxml;
     opens org.audioconvert.prototype.controller to javafx.fxml;
