@@ -111,6 +111,26 @@ private Audio config;
             // *** 1. ตรวจสอบ Format ก่อนพยายามดึงค่า Bitrate/VBR ***
             if (format != null && (format.equalsIgnoreCase("wav") || format.equalsIgnoreCase("flac"))) {
                 // สำหรับ WAV/FLAC: ไม่ต้องตั้งค่า BitRate/VBR
+                try {
+                    // ใช้ logic เดิมในการดึงค่า
+                    int bitrateKbps = Integer.parseInt(bitrateChoice.getValue().replace(" kbps", ""));
+                    int bitrate = bitrateKbps * 1000;
+                    String vbr = qualityChoice.getValue();
+                    double sampleRateKHz = Double.parseDouble(sampleRateChoice.getValue().replace(" kHz", ""));
+                    int sampleRate = (int)(sampleRateKHz * 1000);
+                    int channels = Integer.parseInt(channelsChoice.getValue());
+
+                    config.setBitrate(bitrate);
+                    config.setVBR(vbr);
+                    config.setSamplingRate(sampleRate);
+                    config.setChannels(channels);
+                    // บันทึกสถานะ CBR/VBR
+                    config.setCBR(constant.isSelected());
+
+                } catch (NumberFormatException e) {
+                    System.err.println("Error parsing configuration values: " + e.getMessage());
+                    return; // ไม่ปิดหน้าต่างหากมี error
+                }
             } else {
                 // สำหรับ MP3/M4A: ต้องตั้งค่า BitRate/VBR
                 try {
