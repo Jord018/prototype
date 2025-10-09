@@ -6,7 +6,7 @@ public class Audio {
     private String format = "mp3";
     private int channels = 1;
     private int samplingRate = 44100; // 44.1 kHz in Hz
-    private int Quality = 5;
+    private double Quality;
     private File target;
     private File path;
     private int Bitrate = 192000; // 192 kbps in bps
@@ -54,7 +54,7 @@ public class Audio {
         return samplingRate;
     }
 
-    public int getQuality() {
+    public double getQuality() {
         return Quality;
     }
 
@@ -79,8 +79,9 @@ public class Audio {
         this.channels = channels;
     }
 
-    public void setQuality(int quality) {
-        Quality = quality;
+    public void setQuality(double quality) {
+        double q = quality * 1000;
+        Quality = q;
     }
 
     public void setTarget(File target) {

@@ -49,7 +49,16 @@
             <version>2.0.16</version>
             <scope>runtime</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.mpatric</groupId>
+            <artifactId>mp3agic</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>17.0.2</version> <!-- Use your JavaFX version -->
+        </dependency>
     </dependencies>
 
     <build>

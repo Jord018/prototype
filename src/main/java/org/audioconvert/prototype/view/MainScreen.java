@@ -3,30 +3,37 @@ package org.audioconvert.prototype.view;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
-import javafx.scene.layout.VBox;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.audioconvert.prototype.controller.Convert;
+import org.audioconvert.prototype.exception.SameFileTypeException;
 import org.audioconvert.prototype.model.Audio;
-import javafx.scene.input.KeyCode;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-
+import ws.schild.jave.EncoderException;
 
 import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
 
 public class MainScreen {
     @FXML private RadioButton quality1, quality2, quality3, quality4;
@@ -50,29 +57,74 @@ public class MainScreen {
             case "mp3":
                 enableQualities(true);
                 quality1.setText("64 kbps");
+                quality1.setOnAction(event -> {
+                        audio.setQuality(64);
+                        System.out.println(audio.getQuality());
+                        });
                 quality2.setText("128 kbps");
+                quality2.setOnAction(event -> {
+                    audio.setQuality(128);
+                    System.out.println(audio.getQuality());
+                });
                 quality3.setText("192 kbps");
+                quality3.setOnAction(event -> {
+                    audio.setQuality(192);
+                    System.out.println(audio.getQuality());
+                });
                 quality4.setText("320 kbps");
+                quality4.setOnAction(event -> {
+                    audio.setQuality(320);
+                    System.out.println(audio.getQuality());
+                });
                 quality1.setSelected(true);
-                audio.setQuality(64);
                 break;
             case "m4a":
                 enableQualities(true);
                 quality1.setText("64 kbps");
+                quality1.setOnAction(event -> {
+                    audio.setQuality(64);
+                    System.out.println(audio.getQuality());
+                });
                 quality2.setText("128 kbps");
+                quality2.setOnAction(event -> {
+                    audio.setQuality(128);
+                    System.out.println(audio.getQuality());
+                });
                 quality3.setText("160 kbps");
+                quality3.setOnAction(event -> {
+                    audio.setQuality(160);
+                    System.out.println(audio.getQuality());
+                });
                 quality4.setText("256 kbps");
+                quality4.setOnAction(event -> {
+                    audio.setQuality(256);
+                    System.out.println(audio.getQuality());
+                });
                 quality1.setSelected(true);
-                audio.setQuality(64);
                 break;
             case "wav":
                 enableQualities(true);
                 quality1.setText("20 kHz");
+                quality1.setOnAction(event -> {
+                    audio.setQuality(20);
+                    System.out.println(audio.getQuality());
+                });
                 quality2.setText("44.1 kHz");
+                quality2.setOnAction(event -> {
+                    audio.setQuality(44.1);
+                    System.out.println(audio.getQuality());
+                });
                 quality3.setText("48 kHz");
+                quality3.setOnAction(event -> {
+                    audio.setQuality(48);
+                    System.out.println(audio.getQuality());
+                });
                 quality4.setText("96 kHz");
+                quality4.setOnAction(event -> {
+                    audio.setQuality(96);
+                    System.out.println(audio.getQuality());
+                });
                 quality1.setSelected(true);
-                audio.setQuality(20); // หรือ 44.1 แล้วแต่ต้องการ
                 break;
             case "flac":
                 enableQualities(false);
@@ -241,7 +293,8 @@ public class MainScreen {
         configBtn.setOnAction(event -> showConfigPopup());
 
         convertBtn.setOnAction(event -> {
-            Show_ProgresPopup();
+
+            showProgressPopup();
         });
         mp3Btn.setOnAction(e -> {
             audio.setFormat("mp3");
@@ -330,6 +383,11 @@ public class MainScreen {
                         }
 
                         if (!AUDIO_EXTENSIONS.contains(extension)) {
+                            Alert alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("Failed to add files");
+                            alert.setContentText("(Not an audio file): " + fileName);
+                            alert.show();
                             System.out.println("File skipped (Not an audio file): " + fileName);
                             continue;
                         }
@@ -338,6 +396,12 @@ public class MainScreen {
                         if (!dropBarItems.contains(fileName)) {
                             filesToAdd.add(file);
                         } else {
+                            Alert alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("Failed to add files");
+                            alert.setContentText("(Duplicate name): " + fileName);
+                            alert.show();
+                            System.out.println("File skipped (Duplicate name): " + fileName);
                             System.out.println("File skipped (Duplicate name): " + fileName);
                         }
                     }
@@ -438,40 +502,57 @@ public class MainScreen {
     }
 
     @FXML
-    private void Show_ProgresPopup() {
-        // Check if a file is selected
-        if (audio.getPath() == null) {
+    private void showProgressPopup() {
+        // Check if any files are selected
+        if (droppedFiles == null || droppedFiles.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
-            alert.setHeaderText("No File Selected");
-            alert.setContentText("Please select or drop a file to convert first.");
+            alert.setHeaderText("No Files Selected");
+            alert.setContentText("Please select or drop files to convert first.");
             alert.showAndWait();
             return;
         }
-        
-        // Set the target file path
-        String sourcePath = audio.getPath().getAbsolutePath();
-        String targetPath = sourcePath.substring(0, sourcePath.lastIndexOf('.')) + "." + audio.getFormat();
-        audio.setTarget(new File(targetPath));
 
+        // Let user choose target directory
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select Target Directory");
+        
+        // Set initial directory to the first file's parent directory
+        if (!droppedFiles.isEmpty()) {
+            File firstFile = droppedFiles.get(0);
+            if (firstFile != null && firstFile.getParentFile() != null) {
+                directoryChooser.setInitialDirectory(firstFile.getParentFile());
+            }
+        }
+        
+        File targetDir = directoryChooser.showDialog(primaryStage);
+        
+        // If user cancels the directory selection, abort the operation
+        if (targetDir == null) {
+            return;
+        }
+
+        // Create and configure the progress popup
         Stage popupStage = new Stage();
         popupStage.initOwner(primaryStage);
         popupStage.initModality(Modality.APPLICATION_MODAL);
-        popupStage.setTitle("Converting...");
+        popupStage.setTitle("Converting Files...");
 
         ProgressBar progressBar = new ProgressBar(0);
         progressBar.setPrefWidth(300);
-        Label statusLabel = new Label("Preparing conversion...");
+        Label statusLabel = new Label("Preparing to convert " + droppedFiles.size() + " files...");
         statusLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #2c3e50;");
         Label fileNameLabel = new Label("");
         fileNameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-style: italic;");
+        Label progressLabel = new Label("0/" + droppedFiles.size() + " files processed");
+        progressLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #3498db;");
         
-        VBox vbox = new VBox(15, statusLabel, progressBar, fileNameLabel);
+        VBox vbox = new VBox(10, statusLabel, progressBar, progressLabel, fileNameLabel);
         vbox.setAlignment(Pos.CENTER);
         vbox.setPadding(new Insets(20));
         vbox.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 1;");
 
-        Scene scene = new Scene(vbox, 400, 150);
+        Scene scene = new Scene(vbox, 450, 180);
         popupStage.setScene(scene);
         
         // Show the popup immediately
@@ -480,50 +561,115 @@ public class MainScreen {
         // Create a task for the conversion
         Task<Void> conversionTask = new Task<>() {
             @Override
-            protected Void call() throws Exception {
-                try {
-                    // Update UI on the JavaFX Application Thread
+            protected Void call() {
+                int totalFiles = droppedFiles.size();
+                int processedFiles = 0;
+                
+                for (File inputFile : droppedFiles) {
+                    // Update progress
+                    final int currentFile = processedFiles + 1;
+                    final String currentFileName = inputFile.getName();
+                    
+                    // Update UI with current file info
                     Platform.runLater(() -> {
-                        statusLabel.setText("Starting conversion...");
-                        if (audio.getPath() != null) {
-                            fileNameLabel.setText("File: " + audio.getPath().getName());
-                        }
+                        statusLabel.setText("Converting file " + currentFile + " of " + totalFiles);
+                        fileNameLabel.setText("File: " + currentFileName);
+                        progressLabel.setText(currentFile + "/" + totalFiles + " files processed");
+                        progressBar.setProgress((double) (currentFile - 1) / totalFiles);
                     });
 
-                    // Start the conversion with progress updates
-                    Convert.convertWithProgress(audio, progress -> {
-                        // This runs on the encoder's thread, so we need to update UI on the JavaFX thread
-                        double percentage = progress * 100;
-                        Platform.runLater(() -> {
-                            progressBar.setProgress(progress);
-                            statusLabel.setText(String.format("Converting... %.1f%%", percentage));
+                    try {
+                        // Set up the audio object for the current file
+                        audio.setPath(inputFile);
+
+                        // Set target file path in the selected directory with new extension
+                        String sourceFileName = inputFile.getName();
+                        String targetFileName = sourceFileName;
+
+                        // Remove the original extension if it exists
+                        int lastDot = targetFileName.lastIndexOf('.');
+                        if (lastDot != -1) {
+                            targetFileName = targetFileName.substring(0, lastDot);
+                        }
+
+                        // Add the target format extension (default to .mp3)
+                        targetFileName += "." + audio.getFormat();
+
+                        // Create the target file directly in the selected output directory
+                        File targetFile = new File(targetDir, targetFileName);
+                        audio.setTarget(targetFile);
+
+                        // Ensure the target directory exists
+                        if (!targetDir.exists()) {
+                            targetDir.mkdirs();
+                        }
+
+                        // Perform the conversion
+                        // This should be your existing conversion logic
+                        Convert.convertWithProgress(audio, progress -> {
+                            Platform.runLater(() -> {
+                                double percentage = progress * 100;
+                                progressBar.setProgress(progress);
+                                statusLabel.setText(String.format("Converting... %.1f%%", percentage));
+                            });
                         });
-                    });
+
+                        // Update progress
+                        processedFiles++;
+                        updateProgress(processedFiles, totalFiles);
+
+                        // Show success message for this file
+                        Platform.runLater(() -> {
+                            statusLabel.setText("Successfully converted: " + currentFileName);
+                            statusLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+                        });
+
+                    }catch (SameFileTypeException e) {
+                        Platform.runLater(() -> {
+                            statusLabel.setText("Skipped " + currentFileName + " (Same format)");
+                            statusLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
+                            System.out.println("Skipped: " + e.getMessage());
+                        });
+                    }
+                    catch (Exception e) {
+                        // Handle any errors
+                        Platform.runLater(() -> {
+                            statusLabel.setText("Error converting " + currentFileName + ": " + e.getMessage());
+                            statusLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                            e.printStackTrace();
+                        });
+                    }
+
+                    // Small delay between files
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+                
+                // Create final copies of the variables for use in the lambda
+                final int finalProcessedFiles = processedFiles;
+                final int finalTotalFiles = totalFiles;
+                
+                // All files processed
+                Platform.runLater(() -> {
+                    statusLabel.setText("Conversion complete! " + finalProcessedFiles + "/" + finalTotalFiles + " files processed");
+                    statusLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+                    progressBar.setProgress(1.0);
                     
-                    // Conversion completed successfully
-                    Platform.runLater(() -> {
-                        statusLabel.setText("Conversion completed successfully!");
-                        statusLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
-                    });
-                    
-                } catch (Exception e) {
-                    // Handle any errors
-                    Platform.runLater(() -> {
-                        statusLabel.setText("Error during conversion: " + e.getMessage());
-                        statusLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-                        e.printStackTrace();
-                    });
-                } finally {
-                    // Close the popup after a short delay
+                    // Close the popup after a delay
                     new Thread(() -> {
                         try {
-                            Thread.sleep(1500); // Show success/error message for 1.5 seconds
+                            Thread.sleep(2000);
                             Platform.runLater(popupStage::close);
-                        } catch (InterruptedException ie) {
+                        } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
+                            Platform.runLater(popupStage::close);
                         }
                     }).start();
-                }
+                });
                 return null;
             }
         };
