@@ -8,6 +8,9 @@ import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
 import org.audioconvert.prototype.model.Audio;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ConfigScreen {
     @FXML private RadioButton constant;
     @FXML private RadioButton Variable;
@@ -32,8 +35,9 @@ private Audio config;
         // Initialize choice boxes with default values
         bitrateChoice.getItems().addAll("32 kbps","40 kbps","48 kbps","56 kbps","64 kbps","80 kbps","96 kbps","112 kbps","128 kbps","160 kbps","192 kbps","224 kbps", "256 kbps", "320 kbps");
         qualityChoice.getItems().addAll("0","1", "2", "3", "4", "5", "6", "7", "8", "9");
-        sampleRateChoice.getItems().addAll("32 kHz","44.1 kHz", "48 kHz", "96 kHz");
         channelsChoice.getItems().addAll("1", "2");
+
+        updateSampleRateOptions("mp3");
 
         if (config == null) {
             bitrateChoice.setValue("192 kbps");
@@ -57,10 +61,49 @@ private Audio config;
         Handle_Bitrate();
     }
 
+    private void updateSampleRateOptions(String format) {
+        if (format == null) format = "mp3"; // ป้องกัน Null Pointer
+
+        List<String> sampleRates;
+
+        switch (format.toLowerCase()) {
+            case "mp3":
+                sampleRates = Arrays.asList("32.0 kHz", "44.1 kHz", "48.0 kHz");
+                break;
+            case "m4a":
+                sampleRates = Arrays.asList("8.0 kHz", "11.025 kHz", "12.0 kHz", "16.0 kHz", "22.05 kHz", "24.0 kHz", "32.0 kHz", "44.1 kHz", "48.0 kHz");
+                break;
+            case "wav":
+                sampleRates = Arrays.asList("8.0 kHz", "11.025 kHz", "12.0 kHz", "16.0 kHz", "22.05 kHz", "24.0 kHz", "32.0 kHz", "44.1 kHz", "48.0 kHz", "64.0 kHz", "88.2 kHz", "96.0 kHz");
+                break;
+            case "flac":
+                sampleRates = Arrays.asList("8.0 kHz", "11.025 kHz", "12.0 kHz", "16.0 kHz", "22.05 kHz", "24.0 kHz", "32.0 kHz", "44.1 kHz", "48.0 kHz");
+                break;
+            default:
+                // กรณีที่ไม่รู้จัก format ให้ใช้ค่าเริ่มต้นของ mp3
+                sampleRates = Arrays.asList("32.0 kHz", "44.1 kHz", "48.0 kHz");
+                break;
+        }
+
+        // ล้างค่าเก่าและเพิ่มค่าใหม่
+        sampleRateChoice.getItems().clear();
+        sampleRateChoice.getItems().addAll(sampleRates);
+
+        // ตั้งค่าเริ่มต้นให้เป็น 44.1 kHz ถ้ามีในลิสต์, ถ้าไม่มีให้เลือกตัวแรก
+        if (sampleRates.contains("44.1 kHz")) {
+            sampleRateChoice.setValue("44.1 kHz");
+        } else if (!sampleRates.isEmpty()) {
+            sampleRateChoice.setValue(sampleRates.get(0));
+        }
+    }
+
     private void applyFormatConditions() {
         if (config == null) return;
 
         String format = config.getFormat();
+
+        updateSampleRateOptions(format);
+
 
         // Default: อนุญาตให้เลือกได้ทั้งหมด (สำหรับ MP3)
         constant.setDisable(false);

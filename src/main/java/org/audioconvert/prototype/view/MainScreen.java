@@ -52,79 +52,105 @@ public class MainScreen {
     private Audio audio = new Audio();
     private MediaPlayer mediaPlayer;
 
+    // อยู่ในไฟล์ MainScreen.java
     private void updateQualityOptions(String format) {
+        // ค่า Default สำหรับการรีเซ็ตเมื่อเลือก Preset ที่หน้า Main
+        final int DEFAULT_SAMPLING_RATE = 44100;
+        final int DEFAULT_CHANNELS = 1;
+
         switch(format) {
             case "mp3":
                 enableQualities(true);
                 quality1.setText("64 kbps");
                 quality1.setOnAction(event -> {
-                        audio.setQuality(64);
-                        System.out.println(audio.getQuality());
-                        });
+                    // เปลี่ยน: ตั้งค่า Bitrate และรีเซ็ตค่าอื่น ๆ
+                    audio.setBitrate(64000);
+                    audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
+                    audio.setChannels(DEFAULT_CHANNELS);
+                    System.out.println("Main Preset Set: 64kbps, 44.1kHz, 1ch");
+                });
                 quality2.setText("128 kbps");
                 quality2.setOnAction(event -> {
-                    audio.setQuality(128);
-                    System.out.println(audio.getQuality());
+                    // เปลี่ยน: ตั้งค่า Bitrate และรีเซ็ตค่าอื่น ๆ
+                    audio.setBitrate(128000);
+                    audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
+                    audio.setChannels(DEFAULT_CHANNELS);
+                    System.out.println("Main Preset Set: 128kbps, 44.1kHz, 1ch");
                 });
                 quality3.setText("192 kbps");
                 quality3.setOnAction(event -> {
-                    audio.setQuality(192);
-                    System.out.println(audio.getQuality());
+                    // เปลี่ยน: ตั้งค่า Bitrate และรีเซ็ตค่าอื่น ๆ
+                    audio.setBitrate(192000);
+                    audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
+                    audio.setChannels(DEFAULT_CHANNELS);
+                    System.out.println("Main Preset Set: 192kbps, 44.1kHz, 1ch");
                 });
                 quality4.setText("320 kbps");
                 quality4.setOnAction(event -> {
-                    audio.setQuality(320);
-                    System.out.println(audio.getQuality());
+                    // เปลี่ยน: ตั้งค่า Bitrate และรีเซ็ตค่าอื่น ๆ
+                    audio.setBitrate(320000);
+                    audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
+                    audio.setChannels(DEFAULT_CHANNELS);
+                    System.out.println("Main Preset Set: 320kbps, 44.1kHz, 1ch");
                 });
-                quality1.setSelected(true);
+                quality3.setSelected(true); // เลือก 192kbps เป็นค่าเริ่มต้น
                 break;
             case "m4a":
                 enableQualities(true);
                 quality1.setText("64 kbps");
                 quality1.setOnAction(event -> {
-                    audio.setQuality(64);
-                    System.out.println(audio.getQuality());
+                    audio.setBitrate(64000);
+                    audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
+                    audio.setChannels(DEFAULT_CHANNELS);
+                    System.out.println("Main Preset Set: 64kbps, 44.1kHz, 1ch");
                 });
                 quality2.setText("128 kbps");
                 quality2.setOnAction(event -> {
-                    audio.setQuality(128);
-                    System.out.println(audio.getQuality());
+                    audio.setBitrate(128000);
+                    audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
+                    audio.setChannels(DEFAULT_CHANNELS);
+                    System.out.println("Main Preset Set: 128kbps, 44.1kHz, 1ch");
                 });
                 quality3.setText("160 kbps");
                 quality3.setOnAction(event -> {
-                    audio.setQuality(160);
-                    System.out.println(audio.getQuality());
+                    audio.setBitrate(160000);
+                    audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
+                    audio.setChannels(DEFAULT_CHANNELS);
+                    System.out.println("Main Preset Set: 160kbps, 44.1kHz, 1ch");
                 });
                 quality4.setText("256 kbps");
                 quality4.setOnAction(event -> {
-                    audio.setQuality(256);
-                    System.out.println(audio.getQuality());
+                    audio.setBitrate(256000);
+                    audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
+                    audio.setChannels(DEFAULT_CHANNELS);
+                    System.out.println("Main Preset Set: 256kbps, 44.1kHz, 1ch");
                 });
-                quality1.setSelected(true);
+                quality2.setSelected(true); // เลือก 128kbps เป็นค่าเริ่มต้น
                 break;
             case "wav":
                 enableQualities(true);
-                quality1.setText("20 kHz");
+                // สำหรับ WAV, ปุ่มพวกนี้จะควบคุม Sample Rate โดยตรง
+                quality1.setText("22.05 kHz");
                 quality1.setOnAction(event -> {
-                    audio.setQuality(20);
-                    System.out.println(audio.getQuality());
+                    audio.setSamplingRate(22050);
+                    System.out.println("Main Preset Set (WAV): 22.05kHz");
                 });
                 quality2.setText("44.1 kHz");
                 quality2.setOnAction(event -> {
-                    audio.setQuality(44.1);
-                    System.out.println(audio.getQuality());
+                    audio.setSamplingRate(44100);
+                    System.out.println("Main Preset Set (WAV): 44.1kHz");
                 });
                 quality3.setText("48 kHz");
                 quality3.setOnAction(event -> {
-                    audio.setQuality(48);
-                    System.out.println(audio.getQuality());
+                    audio.setSamplingRate(48000);
+                    System.out.println("Main Preset Set (WAV): 48kHz");
                 });
                 quality4.setText("96 kHz");
                 quality4.setOnAction(event -> {
-                    audio.setQuality(96);
-                    System.out.println(audio.getQuality());
+                    audio.setSamplingRate(96000);
+                    System.out.println("Main Preset Set (WAV): 96kHz");
                 });
-                quality1.setSelected(true);
+                quality2.setSelected(true); // เลือก 44.1kHz เป็นค่าเริ่มต้น
                 break;
             case "flac":
                 enableQualities(false);
