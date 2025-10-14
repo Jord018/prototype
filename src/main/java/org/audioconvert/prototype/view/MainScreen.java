@@ -29,7 +29,6 @@ import javafx.stage.StageStyle;
 import org.audioconvert.prototype.controller.Convert;
 import org.audioconvert.prototype.exception.SameFileTypeException;
 import org.audioconvert.prototype.model.Audio;
-import ws.schild.jave.EncoderException;
 
 import java.io.File;
 import java.util.List;
@@ -42,7 +41,6 @@ public class MainScreen {
     @FXML private Button StopButton;
     @FXML private Button configBtn;
     @FXML private Button convertBtn;
-    @FXML private Label dropBarLabel;
     @FXML private ListView<String> dropBarList;
     @FXML private ImageView DropFilesPic;
 
@@ -52,9 +50,7 @@ public class MainScreen {
     private Audio audio = new Audio();
     private MediaPlayer mediaPlayer;
 
-    // อยู่ในไฟล์ MainScreen.java
     private void updateQualityOptions(String format) {
-        // ค่า Default สำหรับการรีเซ็ตเมื่อเลือก Preset ที่หน้า Main
         final int DEFAULT_SAMPLING_RATE = 44100;
         final int DEFAULT_CHANNELS = 1;
 
@@ -63,7 +59,6 @@ public class MainScreen {
                 enableQualities(true);
                 quality1.setText("64 kbps");
                 quality1.setOnAction(event -> {
-                    // เปลี่ยน: ตั้งค่า Bitrate และรีเซ็ตค่าอื่น ๆ
                     audio.setBitrate(64000);
                     audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
                     audio.setChannels(DEFAULT_CHANNELS);
@@ -71,7 +66,6 @@ public class MainScreen {
                 });
                 quality2.setText("128 kbps");
                 quality2.setOnAction(event -> {
-                    // เปลี่ยน: ตั้งค่า Bitrate และรีเซ็ตค่าอื่น ๆ
                     audio.setBitrate(128000);
                     audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
                     audio.setChannels(DEFAULT_CHANNELS);
@@ -79,7 +73,6 @@ public class MainScreen {
                 });
                 quality3.setText("192 kbps");
                 quality3.setOnAction(event -> {
-                    // เปลี่ยน: ตั้งค่า Bitrate และรีเซ็ตค่าอื่น ๆ
                     audio.setBitrate(192000);
                     audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
                     audio.setChannels(DEFAULT_CHANNELS);
@@ -87,13 +80,12 @@ public class MainScreen {
                 });
                 quality4.setText("320 kbps");
                 quality4.setOnAction(event -> {
-                    // เปลี่ยน: ตั้งค่า Bitrate และรีเซ็ตค่าอื่น ๆ
                     audio.setBitrate(320000);
                     audio.setSamplingRate(DEFAULT_SAMPLING_RATE);
                     audio.setChannels(DEFAULT_CHANNELS);
                     System.out.println("Main Preset Set: 320kbps, 44.1kHz, 1ch");
                 });
-                quality3.setSelected(true); // เลือก 192kbps เป็นค่าเริ่มต้น
+                quality3.setSelected(true);
                 break;
             case "m4a":
                 enableQualities(true);
@@ -125,11 +117,10 @@ public class MainScreen {
                     audio.setChannels(DEFAULT_CHANNELS);
                     System.out.println("Main Preset Set: 256kbps, 44.1kHz, 1ch");
                 });
-                quality2.setSelected(true); // เลือก 128kbps เป็นค่าเริ่มต้น
+                quality2.setSelected(true);
                 break;
             case "wav":
                 enableQualities(true);
-                // สำหรับ WAV, ปุ่มพวกนี้จะควบคุม Sample Rate โดยตรง
                 quality1.setText("22.05 kHz");
                 quality1.setOnAction(event -> {
                     audio.setSamplingRate(22050);
@@ -150,7 +141,7 @@ public class MainScreen {
                     audio.setSamplingRate(96000);
                     System.out.println("Main Preset Set (WAV): 96kHz");
                 });
-                quality2.setSelected(true); // เลือก 44.1kHz เป็นค่าเริ่มต้น
+                quality2.setSelected(true);
                 break;
             case "flac":
                 enableQualities(false);
@@ -161,8 +152,6 @@ public class MainScreen {
                 break;
         }
     }
-
-
 
     private void enableQualities(boolean enable) {
         quality1.setDisable(!enable);
@@ -196,13 +185,10 @@ public class MainScreen {
             return;
         }
 
-        // 1. หยุดเพลงเก่า (ถ้ามี)
         if (mediaPlayer != null) {
             mediaPlayer.stop();
-            // ไม่ต้อง dispose ถ้าต้องการให้ MediaPlayer พร้อมเล่นต่อทันที
         }
 
-        // 2. หากไฟล์ที่เลือกเป็นไฟล์เดียวกับที่กำลังเล่น/หยุดชั่วคราว ให้เล่นต่อ
         if (mediaPlayer != null && mediaPlayer.getMedia().getSource().equals(fileToPlay.toURI().toString())) {
             mediaPlayer.play();
             System.out.println("Resuming: " + selectedFileName);
@@ -211,21 +197,17 @@ public class MainScreen {
 
 
         try {
-            // 3. สร้าง Media และ MediaPlayer ตัวใหม่
             if (mediaPlayer != null) {
-                mediaPlayer.dispose(); // ทิ้ง MediaPlayer เก่าก่อนสร้างใหม่สำหรับไฟล์ใหม่
+                mediaPlayer.dispose();
             }
             Media media = new Media(fileToPlay.toURI().toURL().toString());
             mediaPlayer = new MediaPlayer(media);
 
-            // 4. เริ่มเล่น
             mediaPlayer.play();
             System.out.println("Playing: " + selectedFileName);
 
-            // 5. ตั้งค่า End of Media และ Error Handling
             mediaPlayer.setOnEndOfMedia(() -> {
                 System.out.println("Playback finished.");
-                // สามารถเพิ่มโค้ดเปลี่ยนไอคอน Play/Stop ที่นี่ได้
             });
             mediaPlayer.setOnError(() -> {
                 System.err.println("Media Player Error: " + mediaPlayer.getError());
@@ -247,10 +229,8 @@ public class MainScreen {
 
     private void updatePlaceholderVisibility() {
         if (DropFilesPic != null) {
-            // ตรวจสอบว่ามีไฟล์หรือไม่
             boolean hasFiles = droppedFiles != null && !droppedFiles.isEmpty();
 
-            // ซ่อน/แสดง Placeholder
             DropFilesPic.setVisible(!hasFiles);
             DropFilesPic.setManaged(!hasFiles);
         }
@@ -262,26 +242,21 @@ public class MainScreen {
                 final int selectedIndex = dropBarList.getSelectionModel().getSelectedIndex();
 
                 if (selectedIndex != -1) {
-                    // ตรวจสอบว่าไฟล์ที่ถูกลบเป็นไฟล์แรกหรือไม่
                     boolean wasFirstFile = selectedIndex == 0;
 
-                    // 1. ตรวจสอบและหยุดเล่นเพลงหากไฟล์ที่กำลังเล่นถูกลบ
                     if (mediaPlayer != null && droppedFiles.get(selectedIndex).toURI().toString().equals(mediaPlayer.getMedia().getSource())) {
                         mediaPlayer.stop();
                         mediaPlayer.dispose();
                         mediaPlayer = null;
                     }
 
-                    // 2. ลบไฟล์ออกจากรายการ
                     if (selectedIndex < droppedFiles.size()) {
                         droppedFiles.remove(selectedIndex);
                     }
                     dropBarList.getItems().remove(selectedIndex);
 
-                    // 3. จัดการการแสดงผล
                     updatePlaceholderVisibility();
 
-                    // 4. อัปเดต audio.setPath
                     if (wasFirstFile) {
                         if (!droppedFiles.isEmpty()) {
                             audio.setPath(droppedFiles.get(0));
@@ -298,11 +273,9 @@ public class MainScreen {
     @FXML
     private void initialize() {
 
-        // *** เชื่อมต่อปุ่มเล่นและปุ่มหยุด ***
         PlayButton.setOnAction(event -> playSelectedFile());
         StopButton.setOnAction(event -> stopPlayback());
 
-        // Set up drag and drop functionality
         setupDragAndDrop(audio);
 
         setupDeleteFileOnKeyPress();
@@ -349,14 +322,12 @@ public class MainScreen {
     }
 
     private int parseQuality(String txt) {
-        // "128 kbps" or "44.1 kHz"
         String num = txt.split(" ")[0].replace("kHz", "").replace("kbps", "");
         return (int) Double.parseDouble(num);
     }
 
 
     private void setupDragAndDrop(Audio audio) {
-        // Set up drag over event
         dropBarList.setOnDragOver(event -> {
             if (event.getGestureSource() != dropBarList &&
                     event.getDragboard().hasFiles()) {
@@ -365,7 +336,6 @@ public class MainScreen {
             event.consume();
         });
 
-        // Set up drag entered event (visual feedback)
         dropBarList.setOnDragEntered(event -> {
             if (event.getGestureSource() != dropBarList &&
                     event.getDragboard().hasFiles()) {
@@ -374,17 +344,14 @@ public class MainScreen {
             event.consume();
         });
 
-        // Set up drag exited event (reset visual feedback)
         dropBarList.setOnDragExited(event -> {
             event.consume();
         });
 
-        // Handle dropped files
         dropBarList.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             boolean success = false;
 
-            // กำหนดส่วนขยายไฟล์เสียงที่ยอมรับ
             final java.util.Set<String> AUDIO_EXTENSIONS = java.util.Set.of(
                     "mp3", "m4a", "wav", "flac", "ogg", "aac", "wma", "aiff"
             );
@@ -395,13 +362,12 @@ public class MainScreen {
                 if (!newlyDroppedFiles.isEmpty()) {
 
                     List<File> filesToAdd = new java.util.ArrayList<>();
-                    // ดึงรายการชื่อไฟล์ปัจจุบันจาก ListView
+
                     javafx.collections.ObservableList<String> dropBarItems = dropBarList.getItems();
 
                     for (File file : newlyDroppedFiles) {
                         String fileName = file.getName();
 
-                        // 1. ตรวจสอบส่วนขยายไฟล์ว่าเป็นไฟล์เสียงหรือไม่
                         String extension = "";
                         int i = fileName.lastIndexOf('.');
                         if (i > 0) {
@@ -418,7 +384,6 @@ public class MainScreen {
                             continue;
                         }
 
-                        // 2. ตรวจสอบความซ้ำซ้อนของชื่อไฟล์
                         if (!dropBarItems.contains(fileName)) {
                             filesToAdd.add(file);
                         } else {
@@ -432,26 +397,19 @@ public class MainScreen {
                         }
                     }
 
-                    // 3. อัปเดตรายการไฟล์ทั้งหมดและ ListView
                     if (!filesToAdd.isEmpty()) {
                         if (droppedFiles == null) {
                             droppedFiles = new java.util.ArrayList<>();
                         }
 
-                        // เพิ่มไฟล์ใหม่เข้าในรายการเก็บไฟล์จริง
                         droppedFiles.addAll(filesToAdd);
 
-                        // เพิ่มชื่อไฟล์ใหม่ลงใน ListView
                         for (File file : filesToAdd) {
                             dropBarItems.add(file.getName());
                             System.out.println("Added file: " + file.getAbsolutePath());
                         }
 
-                        // === 4. จัดเรียงชื่อไฟล์ใน ListView ตามลำดับตัวอักษร ===
                         dropBarItems.sort(String::compareTo);
-                        // หรือ dropBarItems.sort((s1, s2) -> s1.compareToIgnoreCase(s2));
-                        // ถ้าต้องการจัดเรียงโดยไม่คำนึงถึงตัวพิมพ์เล็ก-ใหญ่
-                        // =======================================================
 
                         if (audio.getPath() == null) {
                             audio.setPath(droppedFiles.get(0));
@@ -464,12 +422,11 @@ public class MainScreen {
             }
 
             if (DropFilesPic != null) {
-                // ซ่อนรูปภาพถ้ามีไฟล์ใดๆ อยู่ในรายการ (droppedFiles ไม่เป็น null และไม่ว่างเปล่า)
+
                 boolean hasFiles = droppedFiles != null && !droppedFiles.isEmpty();
                 DropFilesPic.setVisible(!hasFiles);
                 DropFilesPic.setManaged(!hasFiles);
 
-                // ทำให้ ListView แสดงผลเต็มพื้นที่เมื่อ Placeholder ถูกซ่อน
                 dropBarList.setVisible(true);
                 dropBarList.setManaged(true);
             }
@@ -483,32 +440,27 @@ public class MainScreen {
     private void showConfigPopup() {
         try {
 
-            // Load the FXML file
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("ConfigUI.fxml"));
             Parent root = loader.load();
             ConfigScreen controller = loader.getController();
             controller.setConfig(audio);
 
-            // Create a new stage for the config window
             Stage configStage = new Stage();
             if (primaryStage != null) {
-                configStage.initOwner(primaryStage);  // Set the owner to the main application stage
+                configStage.initOwner(primaryStage);
             }
             configStage.initModality(Modality.APPLICATION_MODAL);
             configStage.initStyle(StageStyle.UTILITY);
             configStage.setTitle("Configuration");
 
-            // Set the scene and show the stage
             Scene scene = new Scene(root);
             configStage.setScene(scene);
             configStage.setResizable(false);
             this.currentPopup = configStage;
 
-            // Show the config window
             controller.setStage(configStage);
             configStage.showAndWait();
-            
-            // After window is closed, get the config
+
             Audio config = controller.getConfig();
             System.out.println("=== Configuration Saved ===");
             System.out.println("Bitrate: " + config.getBitrate() + " kbps");
@@ -518,7 +470,6 @@ public class MainScreen {
 
         } catch (Exception e) {
             e.printStackTrace();
-            // Show error message to the user
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("Failed to load configuration");
@@ -529,7 +480,6 @@ public class MainScreen {
 
     @FXML
     private void showProgressPopup() {
-        // Check if any files are selected
         if (droppedFiles == null || droppedFiles.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -539,11 +489,9 @@ public class MainScreen {
             return;
         }
 
-        // Let user choose target directory
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select Target Directory");
-        
-        // Set initial directory to the first file's parent directory
+
         if (!droppedFiles.isEmpty()) {
             File firstFile = droppedFiles.get(0);
             if (firstFile != null && firstFile.getParentFile() != null) {
@@ -552,13 +500,11 @@ public class MainScreen {
         }
         
         File targetDir = directoryChooser.showDialog(primaryStage);
-        
-        // If user cancels the directory selection, abort the operation
+
         if (targetDir == null) {
             return;
         }
 
-        // Create and configure the progress popup
         Stage popupStage = new Stage();
         popupStage.initOwner(primaryStage);
         popupStage.initModality(Modality.APPLICATION_MODAL);
@@ -580,11 +526,9 @@ public class MainScreen {
 
         Scene scene = new Scene(vbox, 450, 180);
         popupStage.setScene(scene);
-        
-        // Show the popup immediately
+
         popupStage.show();
 
-        // Create a task for the conversion
         Task<Void> conversionTask = new Task<>() {
             @Override
             protected Void call() {
@@ -592,11 +536,9 @@ public class MainScreen {
                 int processedFiles = 0;
                 
                 for (File inputFile : droppedFiles) {
-                    // Update progress
                     final int currentFile = processedFiles + 1;
                     final String currentFileName = inputFile.getName();
-                    
-                    // Update UI with current file info
+
                     Platform.runLater(() -> {
                         statusLabel.setText("Converting file " + currentFile + " of " + totalFiles);
                         fileNameLabel.setText("File: " + currentFileName);
@@ -605,33 +547,25 @@ public class MainScreen {
                     });
 
                     try {
-                        // Set up the audio object for the current file
                         audio.setPath(inputFile);
 
-                        // Set target file path in the selected directory with new extension
                         String sourceFileName = inputFile.getName();
                         String targetFileName = sourceFileName;
 
-                        // Remove the original extension if it exists
                         int lastDot = targetFileName.lastIndexOf('.');
                         if (lastDot != -1) {
                             targetFileName = targetFileName.substring(0, lastDot);
                         }
 
-                        // Add the target format extension (default to .mp3)
                         targetFileName += "." + audio.getFormat();
 
-                        // Create the target file directly in the selected output directory
                         File targetFile = new File(targetDir, targetFileName);
                         audio.setTarget(targetFile);
 
-                        // Ensure the target directory exists
                         if (!targetDir.exists()) {
                             targetDir.mkdirs();
                         }
 
-                        // Perform the conversion
-                        // This should be your existing conversion logic
                         Convert.convertWithProgress(audio, progress -> {
                             Platform.runLater(() -> {
                                 double percentage = progress * 100;
@@ -640,11 +574,9 @@ public class MainScreen {
                             });
                         });
 
-                        // Update progress
                         processedFiles++;
                         updateProgress(processedFiles, totalFiles);
 
-                        // Show success message for this file
                         Platform.runLater(() -> {
                             statusLabel.setText("Successfully converted: " + currentFileName);
                             statusLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
@@ -658,7 +590,6 @@ public class MainScreen {
                         });
                     }
                     catch (Exception e) {
-                        // Handle any errors
                         Platform.runLater(() -> {
                             statusLabel.setText("Error converting " + currentFileName + ": " + e.getMessage());
                             statusLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
@@ -666,7 +597,6 @@ public class MainScreen {
                         });
                     }
 
-                    // Small delay between files
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
@@ -674,18 +604,15 @@ public class MainScreen {
                         break;
                     }
                 }
-                
-                // Create final copies of the variables for use in the lambda
+
                 final int finalProcessedFiles = processedFiles;
                 final int finalTotalFiles = totalFiles;
-                
-                // All files processed
+
                 Platform.runLater(() -> {
                     statusLabel.setText("Conversion complete! " + finalProcessedFiles + "/" + finalTotalFiles + " files processed");
                     statusLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
                     progressBar.setProgress(1.0);
-                    
-                    // Close the popup after a delay
+
                     new Thread(() -> {
                         try {
                             Thread.sleep(2000);
@@ -700,7 +627,6 @@ public class MainScreen {
             }
         };
 
-        // Start the conversion in a background thread
         new Thread(conversionTask, "Conversion-Thread").start();
     }
 }

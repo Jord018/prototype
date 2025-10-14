@@ -13,10 +13,8 @@ public class Audio {
     public boolean isCBR = true;
     private boolean isVBR = false;
     private String VBR = "1";
-    
-    public Audio() {
-        // Default constructor with default values
-    }
+
+    public Audio() {}
 
     public String getVBR() {
         return VBR;
@@ -25,6 +23,7 @@ public class Audio {
     public void setVBR(String VBR) {
         this.VBR = VBR;
     }
+
     public void setCBR(boolean CBR) {
         isCBR = CBR;
     }
@@ -41,7 +40,6 @@ public class Audio {
         Bitrate = bitrate;
     }
 
-
     public String getFormat() {
         return format;
     }
@@ -57,7 +55,6 @@ public class Audio {
     public double getQuality() {
         return Quality;
     }
-
 
     public File getTarget() {
         return target;

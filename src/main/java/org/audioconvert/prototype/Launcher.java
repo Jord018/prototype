@@ -10,10 +10,10 @@ import org.audioconvert.prototype.view.MainScreen;
 public class Launcher extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Load FXML from resources directory
+
         FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("AudioConverterUI.fxml"));
         Parent root = loader.load();
-        // Get the controller and set the primary stage
+
         MainScreen mainScreenController = loader.getController();
         mainScreenController.setPrimaryStage(primaryStage);
         Scene scene = new Scene(root, 600, 400);

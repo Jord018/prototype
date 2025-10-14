@@ -25,14 +25,12 @@ private Audio config;
 
     @FXML
     private void initialize() {
-        // Set default radio button
         constant.setSelected(true);
 
         ToggleGroup bitrateGroup = new ToggleGroup();
         constant.setToggleGroup(bitrateGroup);
         Variable.setToggleGroup(bitrateGroup);
 
-        // Initialize choice boxes with default values
         bitrateChoice.getItems().addAll("32 kbps","40 kbps","48 kbps","56 kbps","64 kbps","80 kbps","96 kbps","112 kbps","128 kbps","160 kbps","192 kbps","224 kbps", "256 kbps", "320 kbps");
         qualityChoice.getItems().addAll("0","1", "2", "3", "4", "5", "6", "7", "8", "9");
         channelsChoice.getItems().addAll("1", "2");
@@ -48,21 +46,18 @@ private Audio config;
             updateUIFromConfig();
         }
 
-        //Set Apply and Close Button
         applyButton.setOnAction(e -> handleApply());
         CloseBtn.setOnAction(e -> handleCancel());
 
-        // *** 1. เพิ่ม Listener ให้กับ ToggleGroup เพื่อให้ Handle_Bitrate() ทำงานทุกครั้งที่เลือก ***
         bitrateGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             Handle_Bitrate();
         });
 
-        //Set Bitrate - เรียกใช้ครั้งแรกเพื่อตั้งค่าเริ่มต้น
         Handle_Bitrate();
     }
 
     private void updateSampleRateOptions(String format) {
-        if (format == null) format = "mp3"; // ป้องกัน Null Pointer
+        if (format == null) format = "mp3";
 
         List<String> sampleRates;
 
@@ -80,16 +75,13 @@ private Audio config;
                 sampleRates = Arrays.asList("8.0 kHz", "11.025 kHz", "12.0 kHz", "16.0 kHz", "22.05 kHz", "24.0 kHz", "32.0 kHz", "44.1 kHz", "48.0 kHz");
                 break;
             default:
-                // กรณีที่ไม่รู้จัก format ให้ใช้ค่าเริ่มต้นของ mp3
                 sampleRates = Arrays.asList("32.0 kHz", "44.1 kHz", "48.0 kHz");
                 break;
         }
 
-        // ล้างค่าเก่าและเพิ่มค่าใหม่
         sampleRateChoice.getItems().clear();
         sampleRateChoice.getItems().addAll(sampleRates);
 
-        // ตั้งค่าเริ่มต้นให้เป็น 44.1 kHz ถ้ามีในลิสต์, ถ้าไม่มีให้เลือกตัวแรก
         if (sampleRates.contains("44.1 kHz")) {
             sampleRateChoice.setValue("44.1 kHz");
         } else if (!sampleRates.isEmpty()) {
@@ -104,8 +96,6 @@ private Audio config;
 
         updateSampleRateOptions(format);
 
-
-        // Default: อนุญาตให้เลือกได้ทั้งหมด (สำหรับ MP3)
         constant.setDisable(false);
         Variable.setDisable(false);
 
@@ -114,35 +104,32 @@ private Audio config;
         switch (format.toLowerCase()) {
             case "wav":
             case "flac":
-                // เมื่อเลือก WAV หรือ FLAC: ไม่สามารถเลือก Constant หรือ Variable ได้ (Disable ทั้งคู่)
+
                 constant.setDisable(true);
                 Variable.setDisable(true);
 
-                // CBR/VBR ChoiceBoxes ควรถูก Disable ด้วย
                 qualityChoice.setDisable(true);
                 bitrateChoice.setDisable(true);
                 break;
 
             case "m4a":
-                // เมื่อเลือก M4A: เลือกได้แค่ Constant (Variable ถูก Disable)
+
                 constant.setDisable(false);
                 Variable.setDisable(true);
 
-                // บังคับเลือก Constant และตั้งค่า ChoiceBox
                 constant.setSelected(true);
                 qualityChoice.setDisable(true);
                 bitrateChoice.setDisable(false);
                 break;
 
             case "mp3":
-                // เมื่อเลือก MP3: เลือกได้ทั้ง Constant และ Variable
+
                 constant.setDisable(false);
                 Variable.setDisable(false);
-                // สถานะ ChoiceBox จะถูกจัดการโดย Handle_Bitrate() ซึ่งจะถูกเรียกต่อจากนี้
+
                 break;
         }
 
-        // ต้องเรียก Handle_Bitrate อีกครั้ง เพื่อปรับ ChoiceBox ตาม RadioButton ที่อาจถูกเปลี่ยนโดย switch (เช่น M4A)
         Handle_Bitrate();
     }
 
@@ -151,11 +138,11 @@ private Audio config;
         if (config != null) {
             String format = config.getFormat();
 
-            // *** 1. ตรวจสอบ Format ก่อนพยายามดึงค่า Bitrate/VBR ***
+
             if (format != null && (format.equalsIgnoreCase("wav") || format.equalsIgnoreCase("flac"))) {
-                // สำหรับ WAV/FLAC: ไม่ต้องตั้งค่า BitRate/VBR
+
                 try {
-                    // ใช้ logic เดิมในการดึงค่า
+
                     int bitrateKbps = Integer.parseInt(bitrateChoice.getValue().replace(" kbps", ""));
                     int bitrate = bitrateKbps * 1000;
                     String vbr = qualityChoice.getValue();
@@ -167,17 +154,16 @@ private Audio config;
                     config.setVBR(vbr);
                     config.setSamplingRate(sampleRate);
                     config.setChannels(channels);
-                    // บันทึกสถานะ CBR/VBR
                     config.setCBR(constant.isSelected());
 
                 } catch (NumberFormatException e) {
                     System.err.println("Error parsing configuration values: " + e.getMessage());
-                    return; // ไม่ปิดหน้าต่างหากมี error
+                    return;
                 }
             } else {
-                // สำหรับ MP3/M4A: ต้องตั้งค่า BitRate/VBR
+
                 try {
-                    // ใช้ logic เดิมในการดึงค่า
+
                     int bitrateKbps = Integer.parseInt(bitrateChoice.getValue().replace(" kbps", ""));
                     int bitrate = bitrateKbps * 1000;
                     String vbr = qualityChoice.getValue();
@@ -189,16 +175,14 @@ private Audio config;
                     config.setVBR(vbr);
                     config.setSamplingRate(sampleRate);
                     config.setChannels(channels);
-                    // บันทึกสถานะ CBR/VBR
                     config.setCBR(constant.isSelected());
 
                 } catch (NumberFormatException e) {
                     System.err.println("Error parsing configuration values: " + e.getMessage());
-                    return; // ไม่ปิดหน้าต่างหากมี error
+                    return;
                 }
             }
 
-            // Close the window
             if (stage != null) {
                 stage.hide();
             }
@@ -208,17 +192,15 @@ private Audio config;
     public void setConfig(Audio config) {
         this.config = config;
         updateUIFromConfig();
-        applyFormatConditions(); // *** เรียกใช้เงื่อนไข Format ทันทีที่ตั้งค่า config ***
+        applyFormatConditions();
     }
 
     private void updateUIFromConfig() {
         if (config == null) return;
 
-        // Update radio buttons
         constant.setSelected(config.isCBR);
         Variable.setSelected(!config.isCBR);
 
-        // Update choice boxes with null checks
         if (bitrateChoice != null && config.getBitrate() > 0) {
             bitrateChoice.setValue((config.getBitrate() / 1000) + " kbps");
         }
@@ -242,22 +224,21 @@ private Audio config;
     
     @FXML
     private void handleCancel() {
-        // Handle cancel button action
+
         CloseBtn.getScene().getWindow().hide();
     }
 
     private void Handle_Bitrate() {
-        // เงื่อนไขนี้จะทำงานเฉพาะเมื่อ Radio Buttons ไม่ได้ถูก Disable (เช่น MP3)
+
         if (!constant.isDisable() && constant.isSelected()) {
-            bitrateChoice.setDisable(false); // เปิด Bitrate ChoiceBox
-            qualityChoice.setDisable(true);  // ปิด Quality ChoiceBox
+            bitrateChoice.setDisable(false);
+            qualityChoice.setDisable(true);
             if (config != null) config.setCBR(true);
         } else if (!Variable.isDisable() && Variable.isSelected()) {
-            bitrateChoice.setDisable(true); // ปิด Bitrate ChoiceBox
-            qualityChoice.setDisable(false); // เปิด Quality ChoiceBox
+            bitrateChoice.setDisable(true);
+            qualityChoice.setDisable(false);
             if (config != null) config.setCBR(false);
         }
-        // ถ้าเป็น WAV/FLAC, constant.isDisable() จะเป็น true, Logic นี้จะไม่ทำงาน
     }
 
 

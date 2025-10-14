@@ -40,7 +40,6 @@ public class Convert {
     private static int getAudioBitrate(File file) {
         String fileName = file.getName().toLowerCase();
 
-        // Only MP3 files are supported for bitrate reading in this implementation
         if (!fileName.endsWith(".mp3")) {
             return BITRATE_READ_ERROR;
         }
@@ -65,7 +64,6 @@ public class Convert {
      */
     private static int getTargetBitrate(Audio audio) {
         try {
-            // Convert from bps to kbps and round to nearest integer
             return (int) Math.round(audio.getBitrate() / 1000.0);
         } catch (Exception e) {
             System.err.println("Could not get target bitrate: " + e.getMessage());
@@ -82,7 +80,6 @@ public class Convert {
         File tempOutput = null;
 
         try {
-            // If source and target are the same, create a temporary file for conversion
             if (sameFile) {
                 String tempSuffix = ".tmp." + getFileExtension(sourceFile);
                 tempOutput = File.createTempFile("convert_", tempSuffix, sourceFile.getParentFile());
@@ -92,16 +89,13 @@ public class Convert {
                 System.out.println("Source and target are the same. Using temporary file: " + tempOutput.getAbsolutePath());
             }
 
-            // Get file extensions
             String sourceExt = getFileExtension(sourceFile);
             String targetExt = getFileExtension(audio.getTarget());
 
-            // Only check bitrate if extensions are the same and not the same file
             if (sourceExt.equalsIgnoreCase(targetExt) && !sameFile) {
                 int sourceBitrate = getAudioBitrate(sourceFile);
                 int targetBitrate = getTargetBitrate(audio);
 
-                // If we successfully read both bitrates and they're the same, skip conversion
                 if (sourceBitrate != BITRATE_READ_ERROR &&
                         targetBitrate != BITRATE_READ_ERROR &&
                         sourceBitrate == targetBitrate) {
@@ -111,7 +105,6 @@ public class Convert {
                             sourceExt, sourceBitrate));
                 }
 
-                // If we get here, either bitrate couldn't be read or they're different - proceed with conversion
                 System.out.printf("Converting .%s (%d kbps) to .%s (%d kbps)%n",
                         sourceExt, sourceBitrate, targetExt, targetBitrate);
             }
@@ -132,12 +125,11 @@ public class Convert {
                 );
             }
 
-            // Get source duration for progress calculation
             MultimediaObject source = new MultimediaObject(audio.getPath());
             long duration = 0;
             try {
                 MultimediaInfo info = source.getInfo();
-                duration = info.getDuration() / 1000; // Convert to seconds
+                duration = info.getDuration() / 1000;
             } catch (Exception e) {
                 throw new RuntimeException("Could not get media info: " + e.getMessage(), e);
             }
@@ -152,7 +144,6 @@ public class Convert {
 
                 @Override
                 public void progress(int permil) {
-                    // permil is 0-1000 representing 0-100%
                     double progress = permil / 1000.0;
                     progressCallback.accept(progress);
                 }
