@@ -89,9 +89,6 @@ public class Audio {
         this.samplingRate = samplingRate;
     }
 
-    public boolean isCBR() {
-        return isCBR;
-    }
 
     public boolean isVBR() {
         return isVBR;
